@@ -313,6 +313,41 @@ public:
     }
 };
 
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+using namespace std;
+
+class SuffixTrieNode {
+public:
+    unordered_map<char, SuffixTrieNode*> children;
+    vector<int> indexes;
+
+    void insertSuffix(const string& suffix, int index) {
+        indexes.push_back(index);
+        if (!suffix.empty()) {
+            char firstChar = suffix[0];
+            if (children.find(firstChar) == children.end()) {
+                children[firstChar] = new SuffixTrieNode();
+            }
+            children[firstChar]->insertSuffix(suffix.substr(1), index);
+        }
+    }
+
+    void printNode(int level = 0) {
+        for (auto& child : children) {
+            for (int i = 0; i < level; ++i) cout << "  ";
+            cout << "|-- '" << child.first << "' -> " << "[";
+            for (size_t j = 0; j < child.second->indexes.size(); ++j) {
+                cout << child.second->indexes[j];
+                if (j < child.second->indexes.size() - 1) cout << ", ";
+            }
+            cout << "]" << endl;
+            child.second->printNode(level + 1);
+        }
+    }
+};
+
 class SuffixTrie {
 public:
     SuffixTrieNode* root;
@@ -334,13 +369,20 @@ public:
         }
         return currentNode->indexes;
     }
+
+    void printTrie() {
+        root->printNode();
+    }
 };
 
 int main() {
     string text = "banana";
     SuffixTrie trie(text);
 
-    string pattern = "acnana";
+    cout << "Suffix Trie Structure:" << endl;
+    trie.printTrie();
+
+    string pattern = "ana";
     vector<int> result = trie.search(pattern);
 
     if (!result.empty()) {
