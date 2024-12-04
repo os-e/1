@@ -207,3 +207,50 @@ polynomial: newton_polynomial(x_vals, dd, x);
 value_at_2_5: ev(polynomial, x = 2.5);
 print("Interpolating Polynomial: ", polynomial);
 print("f(2.5): ", value_at_2_5);
+gaussian_elimination(A, b) := block(
+    [n, i, j, k, factor, x],
+    
+    /* Combine A and b into an augmented matrix */
+    aug_matrix : augment(A, transpose(matrix(b))),
+    n : length(b),
+    
+    /* Forward elimination */
+    for k : 1 thru n do (
+        /* Find the pivot row and swap */
+        pivot_row : k,
+        for i : k+1 thru n do (
+            if abs(aug_matrix[i, k]) > abs(aug_matrix[pivot_row, k]) then
+                pivot_row : i
+        ),
+        if pivot_row # k then
+            aug_matrix : row_swap(aug_matrix, k, pivot_row),
+        
+        /* Eliminate entries below the pivot */
+        for i : k+1 thru n do (
+            factor : aug_matrix[i, k] / aug_matrix[k, k],
+            for j : k thru n+1 do (
+                aug_matrix[i, j] : aug_matrix[i, j] - factor * aug_matrix[k, j]
+            )
+        )
+    ),
+    
+    /* Back substitution */
+    x : makelist(0, i, 1, n),
+    for i : n thru 1 step -1 do (
+        x[i] : aug_matrix[i, n+1] / aug_matrix[i, i],
+        for j : i-1 thru 1 step -1 do (
+            aug_matrix[j, n+1] : aug_matrix[j, n+1] - aug_matrix[j, i] * x[i]
+        )
+    ),
+    
+    return(x)
+);
+
+/* Helper function to swap rows in a matrix */
+row_swap(matrix, row1, row2) := block(
+    [temp],
+    temp : matrix[row1],
+    matrix[row1] : matrix[row2],
+    matrix[row2] : temp,
+    return(matrix)
+);
