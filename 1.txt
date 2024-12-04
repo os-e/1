@@ -1,0 +1,209 @@
+bisection(f, a, b, tol) := block(
+    [c],
+    if float(f(a)) * float(f(b)) > 0 then error("f(a) and f(b) must have opposite signs"),
+    while abs(float(b - a)) > tol do (
+        c: float((a + b) / 2),
+        print("a: ", float(a), " b: ", float(b), " c: ", c, " f(c): ", float(f(c))),
+        if float(f(c)) = 0 then return(c),
+        if float(f(a)) * float(f(c)) < 0 then b: c else a: c
+    ),
+    return(float((a + b) / 2))
+);
+regula_falsi(f, a, b, tol) := block(
+    [c],
+    if float(f(a)) * float(f(b)) > 0 then error("f(a) and f(b) must have opposite signs"),
+    while abs(float(b - a)) > tol do (
+        c: float(a - f(a) * (b - a) / (f(b) - f(a))),
+        print("a: ", float(a), " b: ", float(b), " c: ", float(c), " f(c): ", float(f(c))),
+        if float(f(c)) = 0 then return(c),
+        if float(f(a)) * float(f(c)) < 0 then b: c else a: c
+    ),
+    return(float(c))
+);
+secant(f, x0, x1, tol) := block(
+    [x2],
+    while abs(float(x1 - x0)) > tol do (
+        x2: float(x1 - f(x1) * (x1 - x0) / (f(x1) - f(x0))),
+        print("x0: ", float(x0), " x1: ", float(x1), " x2: ", x2, " f(x2): ", float(f(x2))),
+        x0: x1,
+        x1: x2
+    ),
+    return(x1)
+);
+newton_raphson(f, x0, tol) := block(
+    [x1, f_prime],
+    f_prime: diff(f(x), x),
+    x1: float(x0 - f(x0) / ev(f_prime, x=x0)), 
+    while abs(float(f(x1))) > tol do (
+        print("x0: ", float(x0), " x1: ", x1, " f(x1): ", float(f(x1))),
+        x0: x1,
+        x1: float(x0 - f(x0) / ev(f_prime, x=x0))
+    ),
+    return(x1)
+);
+trapezoidal_rule(f, a, b, n) := block(
+    [h, sum, i, x, I, err],
+    h: (b - a) / n, 
+    sum: f(a) + f(b),
+    
+    for i: 1 thru n-1 do (
+        sum: sum + 2 * f(a + i * h)
+    ),
+    
+    I: float(integrate(f(x), x, a, b)),
+    err: float(abs(I - h * sum / 2)),
+
+    print("Approximation: ",float(h * sum / 2)),
+    print("Actual Value: ", I),
+    print("Error: ", err)
+);
+simpsons_rule(f, a, b, n) := block(
+    [h, sum_even, sum_odd, i, x, I, err],
+    
+    h: (b - a) / n, 
+    sum_even: 0,  
+    sum_odd: 0,  
+    
+    for i: 1 step 2 thru n-1 do (
+        sum_odd: sum_odd + f(a + i * h)
+    ),
+    for i: 2 step 2 thru n-2 do (
+        sum_even: sum_even + f(a + i * h)
+    ),
+    
+    estimated_value: (h / 3) * (f(a) + 4 * sum_odd + 2 * sum_even + f(b)),
+    I: float(integrate(f(x), x, a, b)),
+    err: abs(I - estimated_value),
+    
+    print("Actual Value: ", I),
+    print("Estimated Value (Simpson's Rule): ", estimated_value),
+    print("Error: ", err)
+);
+euler_method(f, x0, y0, h, x_end) := block(
+    [x: float(x0), y: float(y0), steps: floor((x_end - x0) / h)],
+    print("Iteration: 0", " x: ", x, " y: ", y),
+    for i: 1 thru steps do (
+        y: y + h * f(x, y), 
+        x: x + h,
+        print("Iteration: ", i, " x: ", x, " y: ", y)
+    )
+);
+    [x: float(x0), y: float(y0), steps: floor((x_end - x0) / h)],
+    
+    print("Iteration: 0", " x: ", x, " y: ", y),
+    
+    for i: 1 thru steps do (
+        k1: h * f(x, y),
+        k2: h * f(x + h / 2, y + k1 / 2),
+        k3: h * f(x + h / 2, y + k2 / 2),
+        k4: h * f(x + h, y + k3),
+        y: y + (k1 + 2 * k2 + 2 * k3 + k4) / 6,
+        x: x + h,
+        print("Iteration: ", i, " x: ", x, " y: ", y)
+    )
+);
+gauss_jacobi(A, b, x0, tol, max_iter) := block(
+    [n, x, x_new, i, j, sum, err, iter], 
+    
+    n: length(b), 
+    x: x0,
+    iter: 0,
+    
+    while iter < max_iter do (
+    
+        x_new: makelist(0, i, 1, n), 
+        for i: 1 thru n do (
+            sum: 0,
+            
+            for j: 1 thru n do (
+                if i # j then sum: sum + A[i][j] * x[j]
+            ),
+            
+            x_new[i]: (b[i] - sum) / A[i][i]
+        ),
+        
+
+        err: max(map(lambda([v, v_new], abs(v - v_new)), x, x_new)), 
+        
+
+        print("Iteration: ", iter + 1, " x_new: ", x_new, " Error: ", err),
+
+        if err < tol then return(x_new),
+        x: x_new,
+        iter: iter + 1
+    ),
+    
+    return("Solution did not converge within the maximum iterations.")
+gauss_seidel(A, b, x0, tol, max_iter) := block(
+	    [n, x, i, j, sum, err, iter],
+	    
+	    n: length(b), 
+	    x: x0,
+	    iter: 0,
+	    
+	    while iter < max_iter do (
+	        for i: 1 thru n do (
+	            sum: 0,
+	            for j: 1 thru n do (
+	                if i # j then sum: sum + A[i][j] * x[j]
+	            ),
+	            x[i]: (b[i] - sum) / A[i][i]
+	        ), 
+	        err: max(map(lambda([v, v_new], abs(v - v_new)), x0, x)),
+	        print("Iteration: ", iter + 1, " x: ", x, " Error: ", err),
+	        
+	        if err < tol then return(x),
+	        x0: x,
+	        iter: iter + 1
+	    ),
+	    
+	    return("Solution did not converge within the maximum iterations.")
+	);
+ lagrange_interpolation(x_vals, y_vals, eval_point) := block(
+    [n, L, P, x, i, j, result],
+    n: length(x_vals), 
+    P: 0,
+    
+    for i: 1 thru n do (
+        L: 1,
+        for j: 1 thru n do (
+            if i # j then L: expand(L * (x - x_vals[j]) / (x_vals[i] - x_vals[j]))
+        ),
+        P: expand(P + y_vals[i] * L)
+    ),
+    
+    if not is(eval_point = false) then (
+        result: ev(P, x = eval_point),
+        return([P, result])
+    ) else (
+        return(P)
+    )
+);
+divided_difference(x_values, y_values) := block(
+	    [n: length(x_values), dd: []],
+	    /* Initialize the divided difference table */
+	    dd: makelist(y_values[i], i, 1, n),
+	    for i: 2 thru n do (
+	        for j: n step -1 thru i do (
+	            dd[j]: (dd[j] - dd[j-1]) / (x_values[j] - x_values[j-i+1])
+	        )
+	    ),
+	    return(dd)
+	);
+	
+	/* Define function for Newton Polynomial */
+	newton_polynomial(x_values, dd, x) := block(
+	    [n: length(x_values), poly: dd[1], term: 1],
+	    for i: 2 thru n do (
+	        term: term * (x - x_values[i-1]),
+	        poly: poly + dd[i] * term
+	    ),
+	    return(expand(poly))
+	);
+ x_vals: [1, 3, 5];
+y_vals: [1, 27, 55];
+dd: divided_difference(x_vals, y_vals);
+polynomial: newton_polynomial(x_vals, dd, x);
+value_at_2_5: ev(polynomial, x = 2.5);
+print("Interpolating Polynomial: ", polynomial);
+print("f(2.5): ", value_at_2_5);
