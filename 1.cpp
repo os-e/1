@@ -57,6 +57,16 @@ public:
 
         return finalStates.find(currentState) != finalStates.end();
     }
+void printTransitionTable() const {
+        cout << "Transition Table:" << endl;
+        cout<<"State"<<"\t"<<"Input"<<"\t"<<"Next State"<<endl;
+        for (const auto &state : transitions) {
+            for (const auto &trans : state.second) {
+                cout << state.first << "\t" << trans.first << "\t" << trans.second << endl;
+            }
+        }
+        cout << endl;
+    }
 };
 
 // FA1: Accepts strings with three consecutive 1's
