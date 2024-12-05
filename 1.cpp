@@ -1,635 +1,735 @@
 #include <iostream>
-#include <vector>
-#include <cstdlib>
-#include <ctime>
+#include <unordered_map>
+#include <unordered_set>
+
 using namespace std;
 
-void quick_sort(vector<int> &arr, int left, int right)
+class FiniteAutomaton
 {
-    if (left >= right)
-        return;
-    srand(time(nullptr));
-    int pivot_index = left + rand() % (right - left + 1);
-    int pivot = arr[pivot_index], i = left;
-    swap(arr[pivot_index], arr[right]);
-    for (int j = left; j < right; ++j)
-        if (arr[j] < pivot)
-            swap(arr[i++], arr[j]);
-    swap(arr[i], arr[right]);
+private:
+public:
+    unordered_map<int, unordered_map<char, int>> transitions;
+    int initialState;
+    unordered_set<int> finalStates;
+    FiniteAutomaton() : initialState(-1) {}
 
-    quick_sort(arr, left, i - 1);
-    quick_sort(arr, i + 1, right);
+    void setInitialState(int state)
+    {
+        initialState = state;
+    }
+
+    void addTransition(int fromState, char input, int toState)
+    {
+        transitions[fromState][input] = toState;
+    }
+
+    void addFinalState(int state)
+    {
+        finalStates.insert(state);
+    }
+
+    bool isAccepted(const string &input) const
+    {
+        if (initialState == -1)
+        {
+            cerr << "Initial state is not set." << endl;
+            return false;
+        }
+
+        int currentState = initialState;
+
+        for (char c : input)
+        {
+            auto stateTransitions = transitions.find(currentState);
+            if (stateTransitions == transitions.end())
+            {
+                return false;
+            }
+
+            auto nextState = stateTransitions->second.find(c);
+            if (nextState == stateTransitions->second.end())
+            {
+                return false;
+            }
+
+            currentState = nextState->second;
+        }
+
+        return finalStates.find(currentState) != finalStates.end();
+    }
+};
+
+// FA1: Accepts strings with three consecutive 1's
+void runFA1()
+{
+    FiniteAutomaton fa;
+    const int q0 = 0, q1 = 1, q2 = 2, q3 = 3;
+
+    fa.setInitialState(q0);
+    fa.addTransition(q0, '0', q0);
+    fa.addTransition(q0, '1', q1);
+    fa.addTransition(q1, '0', q0);
+    fa.addTransition(q1, '1', q2);
+    fa.addTransition(q2, '0', q0);
+    fa.addTransition(q2, '1', q3);
+    fa.addTransition(q3, '0', q3);
+    fa.addTransition(q3, '1', q3);
+    fa.addFinalState(q3);
+
+    string input;
+    cout << "Enter input string for FA1 that accepts strings with three consecutive 1's: ";
+    cin >> input;
+
+    cout << (fa.isAccepted(input) ? "Accepted" : "Not Accepted") << endl;
+}
+
+// FA2: Accepts strings with exactly two or three 1's
+void runFA2()
+{
+    FiniteAutomaton fa;
+    const int q0 = 0, q1 = 1, q2 = 2, q3 = 3, q4 = 4;
+
+    fa.setInitialState(q0);
+    fa.addTransition(q0, '0', q0);
+    fa.addTransition(q0, '1', q1);
+    fa.addTransition(q1, '0', q1);
+    fa.addTransition(q1, '1', q2);
+    fa.addTransition(q2, '0', q2);
+    fa.addTransition(q2, '1', q3);
+    fa.addTransition(q3, '0', q3);
+    fa.addTransition(q3, '1', q4);
+    fa.addTransition(q4, '0', q4);
+    fa.addTransition(q4, '1', q4);
+    fa.addFinalState(q2);
+    fa.addFinalState(q3);
+
+    string input;
+    cout << "Enter input string for FA2 that accepts strings with exactly two or three 1's (Interpretation 1: Not consecutive)";
+    cin >> input;
+
+    cout << (fa.isAccepted(input) ? "Accepted" : "Not Accepted") << endl;
+}
+void runFA3()
+{
+    FiniteAutomaton fa;
+    const int q0 = 0, q1 = 1, q2 = 2, q3 = 3, q4 = 4;
+
+    fa.setInitialState(q0);
+    fa.addTransition(q0, '0', q0);
+    fa.addTransition(q0, '1', q1);
+    fa.addTransition(q1, '0', q4);
+    fa.addTransition(q1, '1', q2);
+    fa.addTransition(q2, '0', q4);
+    fa.addTransition(q2, '1', q3);
+    fa.addTransition(q3, '0', q3);
+    fa.addTransition(q3, '1', q4);
+    fa.addTransition(q4, '0', q4);
+    fa.addTransition(q4, '1', q4);
+    fa.addFinalState(q2);
+    fa.addFinalState(q3);
+
+    string input;
+    cout << "Enter input string for FA2 that accepts strings with exactly two or three 1's (Interpretation 2: consecutive)";
+    cin >> input;
+
+    cout << (fa.isAccepted(input) ? "Accepted" : "Not Accepted") << endl;
+}
+
+// FA3: Accepts strings of length 4 or more with the first two characters the same as the last two
+void runFA4()
+{
+    FiniteAutomaton fa;
+    const int q0 = 0, q1 = 1, q2 = 2, q3 = 3, q4 = 4, q5 = 5, q6 = 6, q7 = 7, q8 = 8, q9 = 9, q10 = 10, q11 = 11, q12 = 12, q13 = 13, q14 = 14;
+
+    fa.setInitialState(q0);
+
+    fa.addTransition(q0, 'a', q1);
+    fa.addTransition(q0, 'b', q8);
+    fa.addTransition(q1, 'a', q2);
+    fa.addTransition(q1, 'b', q5);
+    fa.addTransition(q2, 'a', q3);
+    fa.addTransition(q2, 'b', q2);
+    fa.addTransition(q3, 'a', q4);
+    fa.addTransition(q3, 'b', q2);
+    fa.addTransition(q4, 'a', q4);
+    fa.addTransition(q4, 'b', q2);
+    fa.addTransition(q5, 'a', q6);
+    fa.addTransition(q5, 'b', q5);
+    fa.addTransition(q6, 'a', q6);
+    fa.addTransition(q6, 'b', q7);
+    fa.addTransition(q7, 'a', q6);
+    fa.addTransition(q7, 'b', q5);
+    fa.addTransition(q8, 'a', q9);
+    fa.addTransition(q8, 'b', q12);
+    fa.addTransition(q9, 'a', q9);
+    fa.addTransition(q9, 'b', q10);
+    fa.addTransition(q10, 'a', q11);
+    fa.addTransition(q10, 'b', q10);
+    fa.addTransition(q11, 'a', q9);
+    fa.addTransition(q11, 'b', q10);
+    fa.addTransition(q12, 'a', q12);
+    fa.addTransition(q12, 'b', q13);
+    fa.addTransition(q13, 'a', q12);
+    fa.addTransition(q13, 'b', q14);
+    fa.addTransition(q14, 'a', q12);
+    fa.addTransition(q14, 'b', q14);
+
+    fa.addFinalState(q4);
+    fa.addFinalState(q7);
+    fa.addFinalState(q11);
+    fa.addFinalState(q14);
+
+    string input;
+    cout << "Enter input string for FA3: ";
+    cin >> input;
+
+    cout << (fa.isAccepted(input) ? "Accepted" : "Not Accepted") << endl;
+}
+
+// FA4: Accepts strings where the language is a(a+b)*b
+void runFA5()
+{
+    FiniteAutomaton fa;
+    const int q0 = 0, q1 = 1, q2 = 2;
+
+    fa.setInitialState(q0);
+    fa.addTransition(q0, 'a', q1);
+    fa.addTransition(q1, 'a', q1);
+    fa.addTransition(q1, 'b', q2);
+    fa.addTransition(q1, 'a', q1);
+    fa.addTransition(q2, 'a', q1);
+    fa.addTransition(q2, 'b', q2);
+    fa.addFinalState(q2);
+
+    string input;
+    cout << "Enter input string for FA4: ";
+    cin >> input;
+
+    cout << (fa.isAccepted(input) ? "Accepted" : "Not Accepted") << endl;
+}
+
+// FA5: Accepts strings for EVEN-EVEN
+void runFA6()
+{
+    FiniteAutomaton fa;
+
+    const int q0 = 0; // even a, even b
+    const int q1 = 1; // even a, odd b
+    const int q2 = 2; // odd a, even b
+    const int q3 = 3; // odd a, odd b
+
+    fa.setInitialState(q0);
+
+    fa.addTransition(q0, 'a', q2);
+    fa.addTransition(q0, 'b', q1);
+    fa.addTransition(q1, 'a', q3);
+    fa.addTransition(q1, 'b', q0);
+    fa.addTransition(q2, 'a', q0);
+    fa.addTransition(q2, 'b', q3);
+    fa.addTransition(q3, 'a', q1);
+    fa.addTransition(q3, 'b', q2);
+
+    fa.addFinalState(q0);
+    string input;
+    cout << "Enter input string for FA5: ";
+    cin >> input;
+    cout << (fa.isAccepted(input) ? "Accepted" : "Not Accepted") << endl;
 }
 
 int main()
 {
-    vector<int> arr = {3, 6, 8, 10, 1, 2, 1};
-    quick_sort(arr, 0, arr.size() - 1);
-    for (int num : arr)
-        cout << num << " ";
-    cout << endl;
+    int choice;
+    cout << "Menu: ";
+    // write all the FA'5 definiton
+    cout << "\n1. FA1: Accepts strings with three consecutive 1's" << endl;
+    cout << "2. FA2: Accepts strings with exactly two or three 1's (Interpretation 1: Not consecutive)" << endl;
+    cout << "3. FA2: Accepts strings with exactly two or three 1's (Interpretation 2: consecutive)" << endl;
+    cout << "4. FA3: Accepts strings of length 4 or more with the first two characters the same as the last two" << endl;
+    cout << "5. FA4: Accepts strings where the language is a(a+b)*b" << endl;
+    cout << "6. FA5: Accepts strings for EVEN-EVEN" << endl;
+    cout << "Choose Finite Automaton to run (1-6): ";
+
+    cin >> choice;
+
+    switch (choice)
+    {
+    case 1:
+        runFA1();
+        break;
+    case 2:
+        runFA2();
+        break;
+    case 3:
+        runFA3();
+        break;
+    case 4:
+        runFA4();
+        break;
+    case 5:
+        runFA5();
+        break;
+    case 6:
+        runFA6();
+        break;
+    default:
+        cout << "Invalid choice" << endl;
+    }
 
     return 0;
-}#include <iostream>
+}
+#include <iostream>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
-#include <cstdlib>
-#include <ctime>
+
 using namespace std;
 
-int randomisedSelect(vector<int> &arr, int left, int right, int k)
+class FiniteAutomaton
 {
-    if (left == right)
-        return arr[left];
-    srand(time(nullptr));
-    int pivot_index = left + rand() % (right - left + 1);
-    int pivot = arr[right], i = left;
-    swap(arr[pivot_index], arr[right]);
-    for (int j = left; j < right; j++)
-        if (arr[j] < pivot)
-            swap(arr[i++], arr[j]);
-    swap(arr[i], arr[right]);
+public:
+    unordered_map<int, unordered_map<char, int>> transitions;
+    int initialState;
+    unordered_set<int> finalStates;
 
-    if (k == i)
-        return arr[k];
-    return k < i ? randomisedSelect(arr, left, i - 1, k) : randomisedSelect(arr, i + 1, right, k);
+    FiniteAutomaton() : initialState(-1) {}
+
+    void setInitialState(int state)
+    {
+        initialState = state;
+    }
+
+    void addTransition(int fromState, char input, int toState)
+    {
+        transitions[fromState][input] = toState;
+    }
+
+    void addFinalState(int state)
+    {
+        finalStates.insert(state);
+    }
+
+    bool isAccepted(const string &input) const
+    {
+        if (initialState == -1)
+        {
+            cerr << "Initial state is not set." << endl;
+            return false;
+        }
+
+        int currentState = initialState;
+
+        for (char c : input)
+        {
+            if (transitions.at(currentState).find(c) == transitions.at(currentState).end())
+                return false; // Transition not defined for current state and input symbol
+
+            currentState = transitions.at(currentState).at(c);
+        }
+
+        return finalStates.find(currentState) != finalStates.end();
+    }
+};
+
+// Helper function to combine two sets
+unordered_set<int> combineSets(const unordered_set<int> &set1, const unordered_set<int> &set2)
+{
+    unordered_set<int> resultSet = set1;
+    resultSet.insert(set2.begin(), set2.end());
+    return resultSet;
+}
+
+// Helper function to create a new state for a pair of states from two FAs
+int createStatePair(int state1, int state2, int numStates2)
+{
+    return state1 * numStates2 + state2;
+}
+
+// Union of two finite automata
+FiniteAutomaton unionFA(const FiniteAutomaton &fa1, const FiniteAutomaton &fa2)
+{
+    FiniteAutomaton resultFA;
+    int numStates2 = fa2.transitions.size();
+
+    // Set initial state
+    resultFA.setInitialState(createStatePair(fa1.initialState, fa2.initialState, numStates2));
+
+    // Combine transitions
+    for (const auto &[state1, trans1] : fa1.transitions)
+    {
+        for (const auto &[state2, trans2] : fa2.transitions)
+        {
+            for (const auto &[input, nextState1] : trans1)
+            {
+                int nextState2 = trans2.at(input);
+                resultFA.addTransition(createStatePair(state1, state2, numStates2), input, createStatePair(nextState1, nextState2, numStates2));
+            }
+        }
+    }
+
+    // Combine final states
+    for (int finalState1 : fa1.finalStates)
+    {
+        for (int finalState2 : fa2.finalStates)
+        {
+            resultFA.addFinalState(createStatePair(finalState1, finalState2, numStates2));
+        }
+    }
+
+    return resultFA;
+}
+
+// Intersection of two finite automata
+FiniteAutomaton intersectionFA(const FiniteAutomaton &fa1, const FiniteAutomaton &fa2)
+{
+    FiniteAutomaton resultFA;
+    int numStates2 = fa2.transitions.size();
+
+    // Set initial state
+    resultFA.setInitialState(createStatePair(fa1.initialState, fa2.initialState, numStates2));
+
+    // Combine transitions
+    for (const auto &[state1, trans1] : fa1.transitions)
+    {
+        for (const auto &[state2, trans2] : fa2.transitions)
+        {
+            for (const auto &[input, nextState1] : trans1)
+            {
+                int nextState2 = trans2.at(input);
+                resultFA.addTransition(createStatePair(state1, state2, numStates2), input, createStatePair(nextState1, nextState2, numStates2));
+            }
+        }
+    }
+
+    // Combine final states
+    for (int finalState1 : fa1.finalStates)
+    {
+        for (int finalState2 : fa2.finalStates)
+        {
+            resultFA.addFinalState(createStatePair(finalState1, finalState2, numStates2));
+        }
+    }
+
+    return resultFA;
+}
+
+// Concatenation of two finite automata
+FiniteAutomaton concatenateFA(const FiniteAutomaton &fa1, const FiniteAutomaton &fa2)
+{
+    FiniteAutomaton resultFA;
+    int offset = fa1.transitions.size();
+
+    // Copy transitions from fa1
+    resultFA.transitions = fa1.transitions;
+    resultFA.setInitialState(fa1.initialState);
+    resultFA.finalStates = fa2.finalStates;
+
+    // Add transitions from fa2 with offset
+    for (const auto &[state, trans] : fa2.transitions)
+    {
+        for (const auto &[input, nextState] : trans)
+        {
+            resultFA.addTransition(state + offset, input, nextState + offset);
+        }
+    }
+
+    // Add transitions for concatenation
+    for (int finalState1 : fa1.finalStates)
+    {
+        resultFA.addTransition(finalState1, 'e', fa2.initialState + offset); // 'e' for epsilon transition
+    }
+
+    return resultFA;
+}
+
+// Example FA1: Automaton for strings starting with 'a'
+FiniteAutomaton createFA1()
+{
+    FiniteAutomaton fa;
+    const int q0 = 0, q1 = 1, q2 = 2;
+
+    fa.setInitialState(q0);
+    fa.addTransition(q0, 'a', q1);
+    fa.addTransition(q1, 'a', q1);
+    fa.addTransition(q1, 'b', q1);
+    fa.addFinalState(q1);
+
+    return fa;
+}
+
+// Example FA2: Automaton for strings ending with 'b'
+FiniteAutomaton createFA2()
+{
+    FiniteAutomaton fa;
+    const int q0 = 0, q1 = 1;
+
+    fa.setInitialState(q0);
+    fa.addTransition(q0, 'a', q0);
+    fa.addTransition(q0, 'b', q1);
+    fa.addTransition(q1, 'a', q0);
+    fa.addTransition(q1, 'b', q1);
+    fa.addFinalState(q1);
+
+    return fa;
 }
 
 int main()
 {
-    vector<int> arr = {5, 2, 9, 1, 7, 6, 3};
-    int k = 2;
-    cout << "The " << k << "th smallest element is: " << randomisedSelect(arr, 0, arr.size() - 1, k - 1) << endl;
-    for (int num : arr)
-        cout << num << " ";
-    cout << endl;
+    FiniteAutomaton fa1 = createFA1();
+    FiniteAutomaton fa2 = createFA2();
+
+    FiniteAutomaton unionResult = unionFA(fa1, fa2);
+    FiniteAutomaton intersectionResult = intersectionFA(fa1, fa2);
+    FiniteAutomaton concatenationResult = concatenateFA(fa1, fa2);
+
+    string input;
+    cout << "Enter input string: ";
+    cin >> input;
+
+    cout << "Union FA: " << (unionResult.isAccepted(input) ? "Accepted" : "Not Accepted") << endl;
+    cout << "Intersection FA: " << (intersectionResult.isAccepted(input) ? "Accepted" : "Not Accepted") << endl;
+    cout << "Concatenation FA: " << (concatenationResult.isAccepted(input) ? "Accepted" : "Not Accepted") << endl;
+
     return 0;
-}#include <iostream>
+}
+#include <iostream>
+#include <map>
 #include <vector>
+#include <tuple>
 #include <algorithm>
 
 using namespace std;
 
-class Edge
-{
+class TuringMachine {
 public:
-    int src, dest, weight;
-    Edge(int s, int d, int w) : src(s), dest(d), weight(w) {}
-};
-
-class Graph
-{
-public:
-    int V, E;
-    vector<Edge> edges;
-
-    Graph(int V, int E) : V(V), E(E) {}
-
-    void addEdge(int src, int dest, int weight)
-    {
-        edges.push_back(Edge(src, dest, weight));
+    void addTransition(int fromState, char input, int toState, char write, char move) {
+        transitions[fromState][input] = {toState, write, move};
     }
-};
 
-int findParent(vector<int> &parent, int i)
-{
-    if (parent[i] == i)
-        return i;
-    return findParent(parent, parent[i]);
+    string simulate(string input) {
+        int currentState = 0;
+        int head = 0;
+        vector<char> tape(input.begin(), input.end());
+        tape.push_back('_'); // End of tape
+
+        while (currentState != -1) {
+            char currentChar = tape[head];
+            if (transitions[currentState].find(currentChar) == transitions[currentState].end()) {
+                return "Not Accepted";
+            }
+
+            auto [nextState, writeChar, moveDir] = transitions[currentState][currentChar];
+            tape[head] = writeChar;
+            currentState = nextState;
+
+            if (moveDir == 'R') {
+                head++;
+                if (head >= tape.size()) {
+                    tape.push_back('_'); // Extend tape with blank if moving right beyond current size
+                }
+            } else if (moveDir == 'L') {
+                head--;
+                if (head < 0) {
+                    tape.insert(tape.begin(), '_'); // Extend tape on the left with blank if moving left of start
+                    head = 0;
+                }
+            }
+        }
+
+        return string(tape.begin(), tape.end());
+    }
+
+private:
+    map<int, map<char, tuple<int, char, char>>> transitions;
+};
+void handleAnBnCn() {
+    TuringMachine tm;
+
+    // Transition to mark each 'a', 'b', 'c' with 'd' in sequence
+    tm.addTransition(0, 'a', 1, 'd', 'R');   // Mark the first 'a' as 'd'
+    tm.addTransition(1, 'a', 1, 'a', 'R');   // Move right over remaining 'a's
+    tm.addTransition(1, 'd', 1, 'd', 'R');   // Move right over marked 'd's
+    tm.addTransition(1, 'b', 2, 'd', 'R');   // Mark the first 'b' as 'd'
+    tm.addTransition(2, 'b', 2, 'b', 'R');   // Move right over remaining 'b's
+    tm.addTransition(2, 'd', 2, 'd', 'R');   // Move right over marked 'd's
+    tm.addTransition(2, 'c', 3, 'd', 'L');   // Mark the first 'c' as 'd' and start moving left
+
+    // Move left to the beginning of the tape to find the next 'a'
+    tm.addTransition(3, 'b', 3, 'b', 'L');   // Move left over 'b's
+    tm.addTransition(3, 'd', 3, 'd', 'L');   // Move left over 'd's
+    tm.addTransition(3, 'a', 3, 'a', 'L');   // Move left over 'a's
+    tm.addTransition(3, '_', 0, '_', 'R');   // When blank (start of tape) is reached, go to state 0
+
+    // Final check: Accept if only 'd's and blanks remain
+    tm.addTransition(0, 'd', 0, 'd', 'R');   // If all 'a's are marked, proceed to verification
+    tm.addTransition(0, '_', -1, '_', 'R');  // Accept if only 'd's and blanks remain
+
+    string input;
+    cout << "Enter the string to be tested (a^n b^n c^n): ";
+    cin >> input;
+
+    string result = tm.simulate(input);
+    if (result == "Not Accepted") {
+        cout << "Not Accepted" << endl;
+    } else {
+        cout << "Accepted" << endl;
+    }
 }
 
-void unionSets(vector<int> &parent, vector<int> &rank, int x, int y)
-{
-    int xroot = findParent(parent, x);
-    int yroot = findParent(parent, y);
 
-    if (rank[xroot] < rank[yroot])
-        parent[xroot] = yroot;
-    else if (rank[xroot] > rank[yroot])
-        parent[yroot] = xroot;
-    else
-    {
-        parent[yroot] = xroot;
-        rank[xroot]++;
+
+void handleBinaryIncrement() {
+    TuringMachine tm;
+
+    // Define transitions for binary increment
+    tm.addTransition(0, '0', 0, '0', 'R');
+    tm.addTransition(0, '1', 0, '1', 'R');
+    tm.addTransition(0, '_', 1, '_', 'L');
+    tm.addTransition(1, '0', -1, '1', 'R');  // End the increment if we find a '0' to flip to '1'
+    tm.addTransition(1, '1', 1, '0', 'L');   // Carry over if we find a '1' (flip to '0')
+    tm.addTransition(1, '_', -1, '1', 'R');  // If all bits are '1', add '1' at the beginning
+
+    string input;
+    cout << "Enter the binary number to increment: ";
+    cin >> input;
+
+    string result = tm.simulate(input);
+    if (result == "Not Accepted") {
+        cout << "Not Accepted" << endl;
+    } else {
+        // Remove trailing blanks
+        auto endPos = find(result.begin(), result.end(), '_');
+        result.erase(endPos, result.end());
+        cout << "Incremented Result: " << result << endl;
     }
-};
-
-void kruskalMST(vector<Edge> &edges, int V, int E)
-{
-    vector<Edge> result;
-    int e = 0;
-    int i = 0;
-
-    sort(edges.begin(), edges.end(), [](const Edge &a, const Edge &b)
-         { return a.weight < b.weight; });
-
-    vector<int> parent(V);
-    vector<int> rank(V, 0);
-
-    for (int v = 0; v < V; ++v)
-        parent[v] = v;
-
-    while (e < V - 1 && i < E)
-    {
-        Edge next_edge = edges[i++];
-
-        int x = findParent(parent, next_edge.src);
-        int y = findParent(parent, next_edge.dest);
-
-        if (x != y)
-        {
-            result.push_back(next_edge);
-            unionSets(parent, rank, x, y);
-            e++;
-        }
-    }
-
-    cout << "Edges in the Minimum Spanning Tree:\n";
-    for (auto &edge : result)
-        cout << edge.src << " -- " << edge.dest << " == " << edge.weight << endl;
-};
-
-int main()
-{
-    int V = 4;
-    int E = 5;
-    Graph g(V, E);
-
-    g.addEdge(0, 1, 10);
-    g.addEdge(1, 3, 15);
-    g.addEdge(2, 3, 4);
-    g.addEdge(2, 0, 6);
-    g.addEdge(0, 3, 5);
-
-    kruskalMST(g.edges, V, E);
-
-    return 0;
-}#include <iostream>
-#include <vector>
-using namespace std;
-
-class TreeNode {
-public:
-    int data;
-    vector<TreeNode*> children;
-
-    TreeNode(int val): data(val){}
-};
-
-class Tree {
-public:
-    TreeNode* root;
-
-    Tree(int rootVal) {
-        root = new TreeNode(rootVal);
-    }
-
-    void insert(TreeNode* parent, int childVal) {
-        if (!parent) return;
-        TreeNode* childNode = new TreeNode(childVal);
-        parent->children.push_back(childNode);
-    }
-
-    bool search(TreeNode* node, int val) {
-        if (!node) return false;
-        if (node->data == val) return true;
-        
-        for (TreeNode* child : node->children)
-            if (search(child, val)) 
-                return true;
-        return false;
-    }
-
-    void printTree(TreeNode* node, int level = 0) {
-        if (!node) return;
-        
-        for (int i = 0; i < level; ++i) cout << "  "; 
-        cout << "|--" << node->data << endl;
-        
-        for (TreeNode* child : node->children)
-            printTree(child, level + 1);
-        
-    }
-};
+}
 
 int main() {
-    Tree tree(1);  
-    tree.insert(tree.root, 2);
-    tree.insert(tree.root, 3);
-    tree.insert(tree.root->children[0], 4);
-    tree.insert(tree.root->children[0], 5);
-    tree.insert(tree.root->children[1], 6);
-    tree.insert(tree.root->children[1], 7);
-    tree.insert(tree.root->children[0]->children[0], 8);
-    tree.insert(tree.root->children[0]->children[0], 9);
-    tree.insert(tree.root->children[0]->children[1], 10);
-    tree.insert(tree.root->children[0]->children[1], 11);
-    tree.insert(tree.root->children[1]->children[0], 12);
-    tree.insert(tree.root->children[1]->children[0], 13);
-    tree.insert(tree.root->children[1]->children[1], 14);
-    tree.insert(tree.root->children[1]->children[1], 15);
+    int choice;
+    do {
+        cout << "Menu:" << endl;
+        cout << "1. Test a^n b^n c^n" << endl;
+        cout << "2. Increment binary number" << endl;
+        cout << "3. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
 
-    cout << "Tree Structure:" << endl;
-    tree.printTree(tree.root);
-
-    cout << "\nSearch for 14: " << (tree.search(tree.root, 14) ? "Found" : "Not Found") << endl;
-    cout << "Search for 18: " << (tree.search(tree.root, 18) ? "Found" : "Not Found") << endl;
+        switch (choice) {
+            case 1:
+                handleAnBnCn();
+                break;
+            case 2:
+                handleBinaryIncrement();
+                break;
+            case 3:
+                cout << "Exiting the program." << endl;
+                break;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+        }
+    } while (choice != 3);
 
     return 0;
-}#include <iostream>
-#include <vector>
-using namespace std;
-
-void computeFailureFunction(const string &pattern, vector<int> &f)
-{
-    int m = pattern.length();
-    f[0] = 0;
-    int j = 0;
-    int i = 1;
-
-    while (i < m)
-        if (pattern[i] == pattern[j])
-            f[i++] = ++j;
-        else if (j != 0)
-            j = f[j - 1];
-        else
-            f[i++] = 0;
-}
-
-void KMPsearch(const string &text, const string &pattern)
-{
-    int n = text.length();
-    int m = pattern.length();
-    vector<int> f(m);
-    computeFailureFunction(pattern, f);
-
-    int i = 0;
-    int j = 0;
-
-    while (i < n)
-    {
-        if (pattern[j] == text[i])
-            i++, j++;
-        if (j == m)
-        {
-            cout << "Pattern found at index " << i - j << endl;
-            // return;
-            j = f[j - 1];
-        }
-        else if (pattern[j] != text[i])
-            if (j != 0)
-                j = f[j - 1];
-            else
-                i++;
-    }
-}
-
-int main()
-{
-    string text = "abacaabaccabacabaabb";
-    string pattern = "abacab";
-
-    KMPsearch(text, pattern);
-
-    return 0;
-}#include <iostream>
-#include <unordered_map>
-#include <vector>
-using namespace std;
-
-class SuffixTrieNode {
-public:
-    unordered_map<char, SuffixTrieNode*> children;
-    vector<int> indexes;
-
-    void insertSuffix(const string& suffix, int index) {
-        indexes.push_back(index);
-        if (!suffix.empty()) {
-            char firstChar = suffix[0];
-            if (children.find(firstChar) == children.end()) {
-                children[firstChar] = new SuffixTrieNode();
-            }
-            children[firstChar]->insertSuffix(suffix.substr(1), index);
-        }
-    }
-};
-
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-using namespace std;
-
-class SuffixTrieNode {
-public:
-    unordered_map<char, SuffixTrieNode*> children;
-    vector<int> indexes;
-
-    void insertSuffix(const string& suffix, int index) {
-        indexes.push_back(index);
-        if (!suffix.empty()) {
-            char firstChar = suffix[0];
-            if (children.find(firstChar) == children.end()) {
-                children[firstChar] = new SuffixTrieNode();
-            }
-            children[firstChar]->insertSuffix(suffix.substr(1), index);
-        }
-    }
-
-    void printNode(int level = 0) {
-        for (auto& child : children) {
-            for (int i = 0; i < level; ++i) cout << "  ";
-            cout << "|-- '" << child.first << "' -> " << "[";
-            for (size_t j = 0; j < child.second->indexes.size(); ++j) {
-                cout << child.second->indexes[j];
-                if (j < child.second->indexes.size() - 1) cout << ", ";
-            }
-            cout << "]" << endl;
-            child.second->printNode(level + 1);
-        }
-    }
-};
-
-class SuffixTrie {
-public:
-    SuffixTrieNode* root;
-
-    SuffixTrie(const string& text) {
-        root = new SuffixTrieNode();
-        for (int i = 0; i < text.length(); ++i) {
-            root->insertSuffix(text.substr(i), i);
-        }
-    }
-
-    vector<int> search(const string& pattern) {
-        SuffixTrieNode* currentNode = root;
-        for (char ch : pattern) {
-            if (currentNode->children.find(ch) == currentNode->children.end()) {
-                return {};
-            }
-            currentNode = currentNode->children[ch];
-        }
-        return currentNode->indexes;
-    }
-
-    void printTrie() {
-        root->printNode();
-    }
-};
-
-int main() {
-    string text = "banana";
-    SuffixTrie trie(text);
-
-    cout << "Suffix Trie Structure:" << endl;
-    trie.printTrie();
-
-    string pattern = "ana";
-    vector<int> result = trie.search(pattern);
-
-    if (!result.empty()) {
-        cout << "Pattern found at indexes: ";
-        for (int index : result) {
-            cout << index << " ";
-        }
-        cout << endl;
-    } else {
-        cout << "Pattern not found" << endl;
-    }
-
-    return 0;
-}#include <iostream>
-#include <vector>
-#include <climits>
-
-using namespace std;
-
-class Edge
-{
-public:
-	int src, dest, weight;
-	Edge(int s, int d, int w) : src(s), dest(d), weight(w) {}
-};
-
-class Graph
-{
-public:
-	int V, E;
-	vector<Edge> edges;
-	Graph(int V, int E) : V(V), E(E) {}
-
-	void addEdge(int src, int dest, int weight)
-	{
-		edges.push_back(Edge(src, dest, weight));
-	}
-};
-
-void bellmanFord(const vector<Edge> &edges, int V, int src)
-{
-	vector<int> dist(V, INT_MAX);
-	dist[src] = 0;
-
-	for (int i = 1; i < V ; ++i)
-	{
-		for (const auto &edge : edges)
-		{
-			int u = edge.src;
-			int v = edge.dest;
-			int weight = edge.weight;
-			if (dist[u] != INT_MAX && dist[u] + weight < dist[v])
-			{
-				dist[v] = dist[u] + weight;
-			}
-		}
-	}
-
-	for (const auto &edge : edges)
-	{
-		int u = edge.src;
-		int v = edge.dest;
-		int weight = edge.weight;
-		if (dist[u] != INT_MAX && dist[u] + weight < dist[v])
-		{
-			cout << "Graph contains negative weight cycle\n";
-			return;
-		}
-	}
-	cout << "Vertex\tDistance from Source\n";
-	for (int i = 0; i < V; ++i)
-		cout << i << "\t\t" << dist[i] << "\n";
-}
-
-int main()
-{
-	int V = 5;
-	int E = 5;
-
-	Graph g(V, E);
-
-	g.addEdge(1, 3, 2);
-	g.addEdge(4, 3, -1);
-	g.addEdge(2, 4, 1);
-	g.addEdge(1, 2, 1);
-	g.addEdge(0, 1, 5);
-
-	int src = 0;
-	bellmanFord(g.edges, V, src);
-
-	return 0;
 }
 #include <iostream>
+#include <stack>
+#include <string>
+
 using namespace std;
 
-class BTreeNode {
+class PDA {
 public:
-    bool leaf;
-    int keyTally;
-    int keys[4]; // M-1 = 5-1 = 4 keys
-    BTreeNode* pointers[5]; // M = 5 pointers
-
-    BTreeNode(bool leaf);
-    void insertNonFull(int k);
-    void splitChild(int i, BTreeNode* y);
-    void traverse();
-    BTreeNode* search(int k);
-};
-
-BTreeNode::BTreeNode(bool leaf) {
-    this->leaf = leaf;
-    this->keyTally = 0;
-    for (int i = 0; i < 5; i++) {
-        this->pointers[i] = nullptr;
-    }
-}
-
-void BTreeNode::insertNonFull(int k) {
-    int i = keyTally - 1;
-
-    if (leaf) {
-        while (i >= 0 && keys[i] > k) {
-            keys[i + 1] = keys[i];
-            i--;
-        }
-        keys[i + 1] = k;
-        keyTally++;
-    } else {
-        while (i >= 0 && keys[i] > k)
-            i--;
-
-        if (pointers[i + 1]->keyTally == 4) { // M - 1 = 4
-            splitChild(i + 1, pointers[i + 1]);
-            if (keys[i + 1] < k)
-                i++;
-        }
-        pointers[i + 1]->insertNonFull(k);
-    }
-}
-
-void BTreeNode::splitChild(int i, BTreeNode* y) {
-    BTreeNode* z = new BTreeNode(y->leaf);
-    z->keyTally = 2; // M / 2 - 1 = 5 / 2 - 1 = 2
-
-    for (int j = 0; j < 2; j++)
-        z->keys[j] = y->keys[j + 3]; // M / 2 = 3
-
-    if (!y->leaf) {
-        for (int j = 0; j < 3; j++)
-            z->pointers[j] = y->pointers[j + 3];
-    }
-
-    y->keyTally = 2;
-    for (int j = keyTally; j >= i + 1; j--)
-        pointers[j + 1] = pointers[j];
-
-    pointers[i + 1] = z;
-    for (int j = keyTally - 1; j >= i; j--)
-        keys[j + 1] = keys[j];
-
-    keys[i] = y->keys[2];
-    keyTally++;
-}
-
-void BTreeNode::traverse() {
-    int i;
-    for (i = 0; i < keyTally; i++) {
-        if (!leaf)
-            pointers[i]->traverse();
-        cout << " " << keys[i];
-    }
-
-    if (!leaf)
-        pointers[i]->traverse();
-}
-
-BTreeNode* BTreeNode::search(int k) {
-    int i = 0;
-    while (i < keyTally && k > keys[i])
-        i++;
-
-    if (i < keyTally && keys[i] == k)
-        return this;
-
-    if (leaf)
-        return nullptr;
-
-    return pointers[i]->search(k);
-}
-
-class BTree {
-    BTreeNode* root;
-
-public:
-    BTree() {
-        root = new BTreeNode(true);
-    }
-
-    void traverse() {
-        if (root != nullptr)
-            root->traverse();
-    }
-
-    BTreeNode* search(int k) {
-        if (root == nullptr)
-            return nullptr;
-        else
-            return root->search(k);
-    }
-
-    void insert(int k);
-};
-
-void BTree::insert(int k) {
-    if (root->keyTally == 4) { // M - 1 = 4
-        BTreeNode* s = new BTreeNode(false);
-        s->pointers[0] = root;
-        s->splitChild(0, root);
+    // Simulate PDA for {a^n b^n | n > 0}
+    bool simulateAnBn(const string &input) {
+        stack<char> st;
         int i = 0;
-        if (s->keys[0] < k)
+
+        // Push 'a's onto the stack
+        while (i < input.length() && input[i] == 'a') {
+            st.push('a');
             i++;
-        s->pointers[i]->insertNonFull(k);
-        root = s;
-    } else
-        root->insertNonFull(k);
-}
+        }
+
+        // Pop 'a's for each 'b' encountered
+        while (i < input.length() && input[i] == 'b') {
+            if (st.empty() || st.top() != 'a') return false;
+            st.pop();
+            i++;
+        }
+
+        // The input is valid if the stack is empty and all characters are processed
+        return st.empty() && i == input.length();
+    }
+
+    // Simulate PDA for {w X w^r | w ∈ {a, b}*, X is a special symbol}
+    bool simulateWXRWr(const string &input) {
+        stack<char> st;
+        int i = 0;
+
+        // Push 'a' or 'b' onto the stack until 'X' is found
+        while (i < input.length() && input[i] != 'X') {
+            st.push(input[i]);
+            i++;
+        }
+
+        // Check for presence of 'X'
+        if (i == input.length() || input[i] != 'X') return false;
+        i++;  // Move past 'X'
+
+        // For each character after 'X', pop from the stack and check if it matches
+        while (i < input.length()) {
+            if (st.empty() || st.top() != input[i]) return false;
+            st.pop();
+            i++;
+        }
+
+        // The input is valid if the stack is empty and all characters are processed
+        return st.empty();
+    }
+
+    // Menu to select and simulate each PDA
+    void run() {
+        int choice;
+        string input;
+
+        do {
+            cout << "\nMenu:\n";
+            cout << "1. Test language {a^n b^n | n > 0}\n";
+            cout << "2. Test language {w X w^r | w ∈ {a, b}*}\n";
+            cout << "3. Exit\n";
+            cout << "Enter your choice: ";
+            cin >> choice;
+
+            switch (choice) {
+                case 1:
+                    cout << "Enter the string to test (a^n b^n): ";
+                    cin >> input;
+                    if (simulateAnBn(input)) {
+                        cout << "Accepted\n";
+                    } else {
+                        cout << "Not Accepted\n";
+                    }
+                    break;
+                case 2:
+                    cout << "Enter the string to test (w X w^r): ";
+                    cin >> input;
+                    if (simulateWXRWr(input)) {
+                        cout << "Accepted\n";
+                    } else {
+                        cout << "Not Accepted\n";
+                    }
+                    break;
+                case 3:
+                    cout << "Exiting the program.\n";
+                    break;
+                default:
+                    cout << "Invalid choice. Please try again.\n";
+            }
+        } while (choice != 3);
+    }
+};
 
 int main() {
-    BTree t;
-
-    t.insert(10);
-    t.insert(20);
-    t.insert(5);
-    t.insert(6);
-    t.insert(12);
-    t.insert(30);
-    t.insert(7);
-    t.insert(17);
-
-    cout << "Traversal of the constructed B-Tree is:";
-    t.traverse();
-
-    int k = 6;
-    cout << "\nSearching for " << k << ": " << (t.search(k) ? "Present" : "Not Present");
-
-    k = 15;
-    cout << "\nSearching for " << k << ": " << (t.search(k) ? "Present" : "Not Present");
-
+    PDA pda;
+    pda.run();
     return 0;
 }
