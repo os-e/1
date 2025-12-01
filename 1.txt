@@ -65,3 +65,119 @@ grep -i "fail\|error" CbsPersist.log
 grep "event" CbsPersist.log | wc -l
 grep -i "Initializing\|shutting down" CbsPersist_20250904103506.log
 ```
+
+
+---
+
+4. Capture and Analyse Network Packets using Wireshark
+
+**Objective:** To capture live network traffic and analyze packets to understand communication flow or identify suspicious activity.
+
+#### **Step 1: Capture Packets**
+1.  **Launch Wireshark:** Open the application (run as Administrator for full access to network interfaces).
+2.  **Select Interface:** On the startup screen, select the active network interface (e.g., `Wi-Fi` or `Ethernet`) that shows traffic activity (a jagged line graph next to the name).
+3.  **Start Capture:** Click the blue shark fin icon in the top-left toolbar ("Start capturing packets").
+4.  **Generate Traffic:** Open a web browser and visit a site (e.g., an HTTP site for clear text or HTTPS) or run a `ping` command in the terminal to generate specific traffic.
+5.  **Stop Capture:** Click the red square icon ("Stop capturing packets") in the toolbar once sufficient data is collected.
+
+#### **Step 2: Analyse Packets**
+1.  **Filter Traffic:** Use the "Apply a display filter" bar at the top to isolate specific traffic.
+    * Type `http` to see web traffic.
+    * Type `tcp` or `udp` to filter by protocol.
+    * Type `ip.addr == [IP Address]` to see traffic from a specific source/destination.
+2.  **Inspect Packet Details:** Click on a single packet in the top pane.
+    * **Packet List Pane (Top):** Shows time, source IP, destination IP, protocol, and info.
+    * **Packet Details Pane (Middle):** Shows protocols in layers (OSI model). Expand "Internet Protocol Version 4" to see source/dest IPs. Expand "Transmission Control Protocol" to see ports.
+3.  **Follow TCP Stream:** Right-click a packet of interest $\rightarrow$ Select **Follow** $\rightarrow$ **TCP Stream**.
+    * This reassembles the conversation between the client and server into a readable format (useful for seeing HTTP headers or clear-text credentials).
+
+---
+
+ 5. Creating a Forensic Image using FTK Imager
+
+**Objective:** To create a bit-by-bit forensic copy of a drive and verify its integrity to ensure it is admissible as evidence.
+
+#### **Step 1: Creating the Forensic Image**
+1.  **Launch FTK Imager:** Open the tool as Administrator.
+2.  **Initiate Capture:** Go to **File** $\rightarrow$ **Create Disk Image**.
+3.  **Select Source:** Choose the source type (e.g., **Physical Drive** for the whole disk or **Logical Drive** for a specific partition C:/D:). Click **Next**.
+4.  **Choose Drive:** Select the specific drive to image from the dropdown list.
+5.  **Add Destination:** Click **Add** to set the destination for the image file.
+    * **Image Format:** Choose **E01** (EnCase format) or **Raw (dd)**. E01 is preferred as it supports compression and metadata.
+    * **Case Info:** Enter Case Number, Evidence Number, and Examiner Name (optional but recommended).
+    * **Destination Folder:** Browse to the location where the image will be saved (must be an external drive or a different partition from the source).
+    * **Filename:** Give the image a name (e.g., `Evidence_001`).
+6.  **Verification Settings:** Ensure the box **"Verify images after they are created"** is checked. This is critical for integrity.
+7.  **Start:** Click **Start**. The tool will now copy every bit from the source to the image file.
+
+#### **Step 2: Checking Integrity of Data**
+1.  **Automatic Verification:** Once imaging is complete, FTK Imager will automatically hash the *Source* drive and the *Created Image*.
+2.  **Compare Hashes:** A "Drive/Image Verify Results" window will appear. Check that the **MD5** and **SHA1** hashes of the created image match the computed hashes of the source drive.
+    * **Match:** Integrity confirmed (Evidence is valid).
+    * **No Match:** Image is corrupted (Evidence is invalid).
+
+#### **Step 3: Analysing the Forensic Image**
+1.  **Load Image:** Go to **File** $\rightarrow$ **Add Evidence Item**.
+2.  **Select Type:** Choose **Image File**.
+3.  **Browse:** Locate and select the `.E01` or `.001` file you just created.
+4.  **Explore:** The image will appear in the "Evidence Tree" pane on the left.
+    * Expand the tree to view files, folders, and **Unallocated Space** (deleted data).
+    * Click on files to preview them in the viewer pane without altering the evidence.
+
+---
+
+6. System Internal Tools for Monitoring
+
+**Objective:** To monitor live system resources and capture volatile evidence using Sysinternals and other tools listed in the "Note".
+
+#### **a. Monitor Live Processes**
+* **Tool:** **Process Explorer** (Sysinternals)
+* **Steps:**
+    1.  Run `procexp.exe` as Administrator.
+    2.  Observe the hierarchical tree view of processes.
+    3.  **Colors:** Pink (Services), Blue (Own Processes), Green (New Process), Red (Killed Process).
+    4.  **Action:** Hover over a process name to see the command line path or double-click to see detailed properties (Threads, TCP/IP connections, Strings).
+
+#### **b. Capture RAM**
+* **Tool:** **Magnet RAM Capture** (or RAM Capture as per note)
+* **Steps:**
+    1.  Run the executable from a USB drive (to minimize footprint on the suspect drive).
+    2.  **Configuration:** Select the destination folder to save the raw dump (e.g., the USB drive).
+    3.  **Capture:** Click **Start**. The tool will dump the contents of the physical memory to a `.raw` or `.mem` file.
+    4.  **Wait:** Wait for the progress bar to finish. Do not use the computer during this process to avoid changing memory contents.
+
+#### **c. Capture TCP/UDP Packets**
+* **Tool:** **Wireshark** (for full capture) or **TCPView** (for monitoring endpoints)
+* **Monitoring Steps (TCPView):**
+    1.  Run `tcpview.exe` (Sysinternals).
+    2.  Observe the list of all active TCP and UDP endpoints.
+    3.  **State:** Look for connections in `ESTABLISHED`, `LISTENING`, or `TIME_WAIT` states.
+    4.  **Process:** Identify which specific process (Name/PID) is initiating the connection.
+
+#### **d. Monitor the Hard Disk**
+* **Tool:** **DiskMon** (Sysinternals) or **Process Monitor**
+* **Steps (Process Monitor):**
+    1.  Run `procmon.exe`.
+    2.  **Filter:** Use the toolbar buttons to disable Registry and Network activity, leaving only **File System Activity** enabled.
+    3.  **Observe:** Watch real-time Read/Write/Open operations.
+    4.  **Analyze:** Look for processes accessing unusual files or high volumes of Write operations (potential data exfiltration or wiping).
+
+#### **e. Monitor Virtual Memory**
+* **Tool:** **Process Explorer**
+* **Steps:**
+    1.  Open Process Explorer.
+    2.  Go to **View** $\rightarrow$ **System Information** (or press `Ctrl+I`).
+    3.  Click the **Memory** tab.
+    4.  **Observe:** Look at the **Commit Charge (K)** section.
+        * **Current:** Total virtual memory currently used.
+        * **Limit:** Maximum virtual memory available (RAM + Pagefile).
+        * High "Commit Charge" usage usually indicates heavy use of virtual memory/paging file.
+
+#### **f. Monitor Cache Memory**
+* **Tool:** **RAMMap** (Sysinternals)
+* **Steps:**
+    1.  Run `RAMMap.exe`.
+    2.  Click on the **Use Counts** tab.
+    3.  **Observe:** Look for the **Standby** column.
+        * **Standby:** Pages of physical ram not actively in use but still containing data (Cache).
+        * **File Summary Tab:** Click this to see exactly which files are currently cached in RAM (Standby lists). This is useful to see what files were recently accessed by the user.
