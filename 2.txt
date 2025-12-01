@@ -1,0 +1,49 @@
+Based on the provided document, here is the explanation of the **expected output** for the key network and forensic commands, along with examples.
+
+### **1. Windows Network Commands**
+
+| Command | Example | Explanation of Expected Output |
+| :--- | :--- | :--- |
+| **ipconfig** | `ipconfig` | **What it tells you:** It displays the current TCP/IP network configuration values (IP Address, Subnet Mask, and Default Gateway) .<br>**Forensic Value:** It identifies the victim machine's IP and MAC address to help correlate with network logs. |
+| **ping** | `ping google.com` | **What it tells you:** It verifies connectivity by sending ICMP Echo Request messages. If successful, you see replies with time statistics .<br>**Forensic Value:** It confirms if a suspect Command & Control (C2) server is currently active or reachable. |
+| **tracert** | `tracert google.com` | **What it tells you:** It lists every router (hop) the packet passes through to reach the destination .<br>**Forensic Value:** It identifies the path to a malicious domain or detects intermediate proxies/hops. |
+| **netstat** | `netstat -an` | **What it tells you:** It displays active TCP connections, listening ports, and Ethernet statistics .<br>**Forensic Value:** It is critical for identifying active connections to malicious IPs or "listening" ports that act as backdoors for malware. |
+| **nslookup** | `nslookup unknown-site.com` | **What it tells you:** It queries the DNS to show the IP address mapping for a specific domain name .<br>**Forensic Value:** It resolves the IP address of a suspected phishing domain or C2 server found in logs. |
+| **arp** | `arp -a` | **What it tells you:** It displays the ARP cache, mapping IP addresses to physical MAC addresses .<br>**Forensic Value:** It helps detect ARP spoofing attacks by revealing if different IPs are mapped to the duplicate MAC address. |
+| **net use** | `net use` | **What it tells you:** It shows information about computer connections or shared resources connected to the system .<br>**Forensic Value:** It identifies remote shares or mounted drives where an attacker might be staging stolen data. |
+| **route print** | `route print` | **What it tells you:** It displays the entries in the local IP routing table .<br>**Forensic Value:** It checks if malware has altered the routing table to redirect traffic (e.g., Man-in-the-Middle attacks). |
+
+-----
+
+### **2. Linux Network Commands**
+
+| Command | Example | Explanation of Expected Output |
+| :--- | :--- | :--- |
+| **nmap** | `nmap 192.168.1.5` | **What it tells you:** It performs network discovery and security auditing, listing open ports and services .<br>**Forensic Value:** It reveals running services on a suspect host. |
+| **tcpdump** | `tcpdump -i eth0` | **What it tells you:** It captures and displays TCP/IP packets transmitted or received over the network .<br>**Forensic Value:** It allows for live traffic analysis to identify data exfiltration in real-time. |
+| **dig** | `dig google.com` | **What it tells you:** It interrogates DNS name servers to provide detailed domain information (preferred over nslookup in Linux) .<br>**Forensic Value:** Used to find details about malicious domains. |
+| **ss** | `ss -tulpn` | **What it tells you:** It dumps socket statistics. It is faster and more detailed than netstat .<br>**Forensic Value:** Investigates sockets to see what processes are communicating. |
+| **wget** | `wget http://evil.com/malware.exe` | **What it tells you:** It is a non-interactive network downloader that retrieves files from the web .<br>**Forensic Value:** Used to safely download a malware sample from a URL for analysis in a sandbox. |
+| **who / last** | `last` | **What it tells you:** It shows who is currently logged on (`who`) and the history of the last logged-in users (`last`) .<br>**Forensic Value:** Identifies unauthorized user accounts that were logged in during a security incident. |
+
+-----
+
+### **3. GREP (Search) Commands**
+
+The expected output for `grep` is strictly the text that matches your search pattern.
+
+| Command | Example | Explanation of Expected Output |
+| :--- | :--- | :--- |
+| **grep -i** | `grep -i "login" auth.log` | **What it tells you:** It outputs lines containing the word "login" regardless of capitalization (e.g., "Login", "LOGIN", "login"). |
+| **grep -o** | `grep -o "root" /etc/passwd` | **What it tells you:** It prints *only* the specific segment that matches the pattern, not the entire line surrounding it. |
+| **grep -Eo** | `grep -Eo "[0-9]{4}" file.txt` | **What it tells you:** It uses Extended Regex to find complex patterns (like any 4-digit number) and prints *only* the matching numbers. |
+
+-----
+
+### **4. Forensic Tool Actions**
+
+While these are not simple one-line outputs, the document defines their expected "Goal" or result:
+
+  * **Wireshark:** The expected result is a reconstruction of network streams to identify malicious traffic signatures.
+  * **FTK Imager:** The expected result is a forensic image (bit-by-bit copy) of a drive that preserves evidence.
+  * **Volatility:** The expected result is the extraction of artifacts from a RAM dump, such as active network connections or injected code.
