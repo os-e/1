@@ -1,183 +1,1303 @@
-Here are the commands formatted with typical inputs (arguments) required to run them effectively.
 
-### Windows Network Commands
 
-```cmd
-ipconfig /all
-ping google.com
-tracert google.com
-netstat -an
-nslookup google.com
-arp -a
-net use Z: \\Server\Share
-route print
+## Practical 1: Basic Image Operations
+
+### Question
+
+**Basic Image Operations**
+- a. Read and display image
+- b. Resize a given image
+- c. Convert color image to grayscale
+- d. Convert to black & white image
+- e. Draw the image profile
+- f. Separate R, G, B planes
+- g. Create color image from R, G, B planes
+- h. Write 2-D data in image file
+
+### Code
+
+```python
+"""
+Practical 1: Basic Image Operations
+"""
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img = cv2.imread('images/sample.png')
+img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+plt.figure(figsize=(8, 6))
+plt.imshow(img_rgb)
+plt.title('Original Image')
+plt.axis('off')
+plt.savefig('outputs/01a_original.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] a. Read and Display Image")
+
+resized = cv2.resize(img, (300, 200))
+resized_rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
+plt.figure(figsize=(8, 6))
+plt.imshow(resized_rgb)
+plt.title('Resized Image (300x200)')
+plt.axis('off')
+plt.savefig('outputs/01b_resized.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] b. Resize Image")
+
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+plt.figure(figsize=(8, 6))
+plt.imshow(gray, cmap='gray')
+plt.title('Grayscale Image')
+plt.axis('off')
+plt.savefig('outputs/01c_grayscale.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] c. Convert to Grayscale")
+
+_, bw = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+plt.figure(figsize=(8, 6))
+plt.imshow(bw, cmap='gray')
+plt.title('Black & White Image')
+plt.axis('off')
+plt.savefig('outputs/01d_bw.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] d. Black & White")
+
+mid_row = gray.shape[0] // 2
+profile = gray[mid_row, :]
+plt.figure(figsize=(10, 4))
+plt.plot(profile, linewidth=2)
+plt.title(f'Image Profile (Row {mid_row})')
+plt.xlabel('Column Index')
+plt.ylabel('Pixel Intensity')
+plt.grid(True, alpha=0.3)
+plt.savefig('outputs/01e_profile.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] e. Image Profile")
+
+b, g, r = cv2.split(img)
+fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+axes[0].imshow(r, cmap='Reds')
+axes[0].set_title('Red Channel')
+axes[0].axis('off')
+axes[1].imshow(g, cmap='Greens')
+axes[1].set_title('Green Channel')
+axes[1].axis('off')
+axes[2].imshow(b, cmap='Blues')
+axes[2].set_title('Blue Channel')
+axes[2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/01f_rgb_planes.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] f. RGB Planes Separated")
+
+merged = cv2.merge([b, g, r])
+merged_rgb = cv2.cvtColor(merged, cv2.COLOR_BGR2RGB)
+plt.figure(figsize=(8, 6))
+plt.imshow(merged_rgb)
+plt.title('Merged RGB Image')
+plt.axis('off')
+plt.savefig('outputs/01g_merged.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] g. Create from RGB Planes")
+
+data_2d = np.zeros((200, 200), dtype=np.uint8)
+for i in range(200):
+    for j in range(200):
+        data_2d[i, j] = (i + j) % 256
+cv2.imwrite('outputs/01h_2d_data.png', data_2d)
+plt.figure(figsize=(6, 6))
+plt.imshow(data_2d, cmap='viridis')
+plt.title('2-D Data as Image')
+plt.colorbar()
+plt.savefig('outputs/01h_2d_data_plot.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] h. Write 2-D Data\nPractical 1 Complete!")
 ```
 
-### Linux Network Commands
+### Output
 
-```bash
-ifconfig
-ip addr show
-ping google.com
-traceroute google.com
-tracepath google.com
-netstat -tulpn
-ss -tulpn
-nslookup google.com
-dig google.com
-arp -a
-whois google.com
-tcpdump -i eth0
-iptables -L
-who
-w
-last
-nmap -sV 192.168.1.1
-mtr google.com
-iftop -i eth0
-bmon
-iperf -c 192.168.1.5
-host google.com
-ethtool eth0
-hostname
-route -n
-ip route show
-wget http://example.com/malware_sample.exe
-curl http://example.com
-```
+**Generated Images:**
 
-### GREP Command Examples
+![01a_original.png](file:///C:\Users\sudee\Desktop\practical\outputs\01a_original.png)
 
-```bash
-grep -i "login" auth.log
-grep -o "root" /etc/passwd
-grep -E "error|fail|denied" server.log
-grep -Eo "[0-9]{4}" file.txt
-```
+![01b_resized.png](file:///C:\Users\sudee\Desktop\practical\outputs\01b_resized.png)
 
-### Log Analysis Commands (Targeting `CbsPersist.log`)
+![01c_grayscale.png](file:///C:\Users\sudee\Desktop\practical\outputs\01c_grayscale.png)
 
-```bash
-grep "Initializing" CbsPersist.log
-grep "Loading offline\|Arbiter" CbsPersist.log
-grep "initialized by client" CbsPersist.log
-grep -i "fail\|error" CbsPersist.log
-grep "event" CbsPersist.log | wc -l
-grep -i "Initializing\|shutting down" CbsPersist_20250904103506.log
-```
+![01d_bw.png](file:///C:\Users\sudee\Desktop\practical\outputs\01d_bw.png)
+
+![01e_profile.png](file:///C:\Users\sudee\Desktop\practical\outputs\01e_profile.png)
+
+![01f_rgb_planes.png](file:///C:\Users\sudee\Desktop\practical\outputs\01f_rgb_planes.png)
+
+![01g_merged.png](file:///C:\Users\sudee\Desktop\practical\outputs\01g_merged.png)
+
+![01h_2d_data_plot.png](file:///C:\Users\sudee\Desktop\practical\outputs\01h_2d_data_plot.png)
 
 
 ---
 
-4. Capture and Analyse Network Packets using Wireshark
+## Practical 2: Point Processing Methods
 
-**Objective:** To capture live network traffic and analyze packets to understand communication flow or identify suspicious activity.
+### Question
 
-#### **Step 1: Capture Packets**
-1.  **Launch Wireshark:** Open the application (run as Administrator for full access to network interfaces).
-2.  **Select Interface:** On the startup screen, select the active network interface (e.g., `Wi-Fi` or `Ethernet`) that shows traffic activity (a jagged line graph next to the name).
-3.  **Start Capture:** Click the blue shark fin icon in the top-left toolbar ("Start capturing packets").
-4.  **Generate Traffic:** Open a web browser and visit a site (e.g., an HTTP site for clear text or HTTPS) or run a `ping` command in the terminal to generate specific traffic.
-5.  **Stop Capture:** Click the red square icon ("Stop capturing packets") in the toolbar once sufficient data is collected.
+**Point Processing Methods**
+- a. Obtain Negative image
+- b. Obtain Flip image
+- c. Thresholding
+- d. Contrast stretching
 
-#### **Step 2: Analyse Packets**
-1.  **Filter Traffic:** Use the "Apply a display filter" bar at the top to isolate specific traffic.
-    * Type `http` to see web traffic.
-    * Type `tcp` or `udp` to filter by protocol.
-    * Type `ip.addr == [IP Address]` to see traffic from a specific source/destination.
-2.  **Inspect Packet Details:** Click on a single packet in the top pane.
-    * **Packet List Pane (Top):** Shows time, source IP, destination IP, protocol, and info.
-    * **Packet Details Pane (Middle):** Shows protocols in layers (OSI model). Expand "Internet Protocol Version 4" to see source/dest IPs. Expand "Transmission Control Protocol" to see ports.
-3.  **Follow TCP Stream:** Right-click a packet of interest $\rightarrow$ Select **Follow** $\rightarrow$ **TCP Stream**.
-    * This reassembles the conversation between the client and server into a readable format (useful for seeing HTTP headers or clear-text credentials).
+### Code
+
+```python
+"""
+Practical 2: Point Processing Methods
+"""
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img = cv2.imread('images/sample.png')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+negative = 255 - gray
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+plt.imshow(gray, cmap='gray')
+plt.title('Original')
+plt.axis('off')
+plt.subplot(1, 2, 2)
+plt.imshow(negative, cmap='gray')
+plt.title('Negative')
+plt.axis('off')
+plt.tight_layout()
+plt.savefig('outputs/02a_negative.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] a. Negative Image")
+
+flip_horizontal = cv2.flip(gray, 1)
+flip_vertical = cv2.flip(gray, 0)
+flip_both = cv2.flip(gray, -1)
+fig, axes = plt.subplots(2, 2, figsize=(12, 12))
+axes[0, 0].imshow(gray, cmap='gray')
+axes[0, 0].set_title('Original')
+axes[0, 0].axis('off')
+axes[0, 1].imshow(flip_horizontal, cmap='gray')
+axes[0, 1].set_title('Horizontal Flip')
+axes[0, 1].axis('off')
+axes[1, 0].imshow(flip_vertical, cmap='gray')
+axes[1, 0].set_title('Vertical Flip')
+axes[1, 0].axis('off')
+axes[1, 1].imshow(flip_both, cmap='gray')
+axes[1, 1].set_title('Both Flip')
+axes[1, 1].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/02b_flip.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] b. Flip Image")
+
+_, thresh_binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+_, thresh_binary_inv = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV)
+_, thresh_trunc = cv2.threshold(gray, 127, 255, cv2.THRESH_TRUNC)
+_, thresh_tozero = cv2.threshold(gray, 127, 255, cv2.THRESH_TOZERO)
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+axes[0, 0].imshow(gray, cmap='gray')
+axes[0, 0].set_title('Original')
+axes[0, 0].axis('off')
+axes[0, 1].imshow(thresh_binary, cmap='gray')
+axes[0, 1].set_title('Binary Threshold')
+axes[0, 1].axis('off')
+axes[0, 2].imshow(thresh_binary_inv, cmap='gray')
+axes[0, 2].set_title('Binary Inverse')
+axes[0, 2].axis('off')
+axes[1, 0].imshow(thresh_trunc, cmap='gray')
+axes[1, 0].set_title('Truncate')
+axes[1, 0].axis('off')
+axes[1, 1].imshow(thresh_tozero, cmap='gray')
+axes[1, 1].set_title('To Zero')
+axes[1, 1].axis('off')
+axes[1, 2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/02c_threshold.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] c. Thresholding")
+
+r_min, r_max = gray.min(), gray.max()
+stretched = ((gray - r_min) / (r_max - r_min) * 255).astype(np.uint8)
+equalized = cv2.equalizeHist(gray)
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].imshow(gray, cmap='gray')
+axes[0].set_title('Original')
+axes[0].axis('off')
+axes[1].imshow(stretched, cmap='gray')
+axes[1].set_title('Contrast Stretched')
+axes[1].axis('off')
+axes[2].imshow(equalized, cmap='gray')
+axes[2].set_title('Histogram Equalized')
+axes[2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/02d_contrast.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] d. Contrast Stretching\nPractical 2 Complete!")
+```
+
+### Output
+
+**Generated Images:**
+
+![02a_negative.png](file:///C:\Users\sudee\Desktop\practical\outputs\02a_negative.png)
+
+![02b_flip.png](file:///C:\Users\sudee\Desktop\practical\outputs\02b_flip.png)
+
+![02c_threshold.png](file:///C:\Users\sudee\Desktop\practical\outputs\02c_threshold.png)
+
+![02d_contrast.png](file:///C:\Users\sudee\Desktop\practical\outputs\02d_contrast.png)
+
 
 ---
 
- 5. Creating a Forensic Image using FTK Imager
+## Practical 3: Image Arithmetic Operations
 
-**Objective:** To create a bit-by-bit forensic copy of a drive and verify its integrity to ensure it is admissible as evidence.
+### Question
 
-#### **Step 1: Creating the Forensic Image**
-1.  **Launch FTK Imager:** Open the tool as Administrator.
-2.  **Initiate Capture:** Go to **File** $\rightarrow$ **Create Disk Image**.
-3.  **Select Source:** Choose the source type (e.g., **Physical Drive** for the whole disk or **Logical Drive** for a specific partition C:/D:). Click **Next**.
-4.  **Choose Drive:** Select the specific drive to image from the dropdown list.
-5.  **Add Destination:** Click **Add** to set the destination for the image file.
-    * **Image Format:** Choose **E01** (EnCase format) or **Raw (dd)**. E01 is preferred as it supports compression and metadata.
-    * **Case Info:** Enter Case Number, Evidence Number, and Examiner Name (optional but recommended).
-    * **Destination Folder:** Browse to the location where the image will be saved (must be an external drive or a different partition from the source).
-    * **Filename:** Give the image a name (e.g., `Evidence_001`).
-6.  **Verification Settings:** Ensure the box **"Verify images after they are created"** is checked. This is critical for integrity.
-7.  **Start:** Click **Start**. The tool will now copy every bit from the source to the image file.
+**Image Arithmetic Operations**
+- a. Addition of two images
+- b. Subtract one image from other
+- c. Calculate mean value of image
+- d. Different brightness by changing mean value
 
-#### **Step 2: Checking Integrity of Data**
-1.  **Automatic Verification:** Once imaging is complete, FTK Imager will automatically hash the *Source* drive and the *Created Image*.
-2.  **Compare Hashes:** A "Drive/Image Verify Results" window will appear. Check that the **MD5** and **SHA1** hashes of the created image match the computed hashes of the source drive.
-    * **Match:** Integrity confirmed (Evidence is valid).
-    * **No Match:** Image is corrupted (Evidence is invalid).
+### Code
 
-#### **Step 3: Analysing the Forensic Image**
-1.  **Load Image:** Go to **File** $\rightarrow$ **Add Evidence Item**.
-2.  **Select Type:** Choose **Image File**.
-3.  **Browse:** Locate and select the `.E01` or `.001` file you just created.
-4.  **Explore:** The image will appear in the "Evidence Tree" pane on the left.
-    * Expand the tree to view files, folders, and **Unallocated Space** (deleted data).
-    * Click on files to preview them in the viewer pane without altering the evidence.
+```python
+"""
+Practical 3: Image Arithmetic Operations
+"""
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img1 = cv2.imread('images/sample.png')
+img2 = cv2.imread('images/test.png')
+gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+h, w = 300, 300
+gray1 = cv2.resize(gray1, (w, h))
+gray2 = cv2.resize(gray2, (w, h))
+
+added = cv2.add(gray1, gray2)
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].imshow(gray1, cmap='gray')
+axes[0].set_title('Image 1')
+axes[0].axis('off')
+axes[1].imshow(gray2, cmap='gray')
+axes[1].set_title('Image 2')
+axes[1].axis('off')
+axes[2].imshow(added, cmap='gray')
+axes[2].set_title('Added Image')
+axes[2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/03a_addition.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] a. Addition")
+
+subtracted_abs = cv2.absdiff(gray1, gray2)
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].imshow(gray1, cmap='gray')
+axes[0].set_title('Image 1')
+axes[0].axis('off')
+axes[1].imshow(gray2, cmap='gray')
+axes[1].set_title('Image 2')
+axes[1].axis('off')
+axes[2].imshow(subtracted_abs, cmap='gray')
+axes[2].set_title('Absolute Difference')
+axes[2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/03b_subtraction.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] b. Subtraction")
+
+mean_value = np.mean(gray1)
+median_value = np.median(gray1)
+plt.figure(figsize=(10, 5))
+plt.hist(gray1.ravel(), bins=256, range=[0, 256], color='blue', alpha=0.7)
+plt.axvline(mean_value, color='red', linestyle='--', linewidth=2, label=f'Mean: {mean_value:.2f}')
+plt.axvline(median_value, color='green', linestyle='--', linewidth=2, label=f'Median: {median_value:.2f}')
+plt.title('Image Histogram')
+plt.xlabel('Pixel Intensity')
+plt.ylabel('Frequency')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.savefig('outputs/03c_mean.png', bbox_inches='tight', dpi=150)
+plt.close()
+print(f"[OK] c. Mean: {mean_value:.2f}")
+
+brightened = np.clip(gray1.astype(np.int16) + 50, 0, 255).astype(np.uint8)
+darkened = np.clip(gray1.astype(np.int16) - 50, 0, 255).astype(np.uint8)
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].imshow(darkened, cmap='gray')
+axes[0].set_title(f'Darkened')
+axes[0].axis('off')
+axes[1].imshow(gray1, cmap='gray')
+axes[1].set_title(f'Original')
+axes[1].axis('off')
+axes[2].imshow(brightened, cmap='gray')
+axes[2].set_title(f'Brightened')
+axes[2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/03d_brightness.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] d. Brightness Adjusted\nPractical 3 Complete!")
+```
+
+### Output
+
+**Generated Images:**
+
+![03a_addition.png](file:///C:\Users\sudee\Desktop\practical\outputs\03a_addition.png)
+
+![03b_subtraction.png](file:///C:\Users\sudee\Desktop\practical\outputs\03b_subtraction.png)
+
+![03c_mean.png](file:///C:\Users\sudee\Desktop\practical\outputs\03c_mean.png)
+
+![03d_brightness.png](file:///C:\Users\sudee\Desktop\practical\outputs\03d_brightness.png)
+
 
 ---
 
-6. System Internal Tools for Monitoring
+## Practical 4: Image Logical Operations
 
-**Objective:** To monitor live system resources and capture volatile evidence using Sysinternals and other tools listed in the "Note".
+### Question
 
-#### **a. Monitor Live Processes**
-* **Tool:** **Process Explorer** (Sysinternals)
-* **Steps:**
-    1.  Run `procexp.exe` as Administrator.
-    2.  Observe the hierarchical tree view of processes.
-    3.  **Colors:** Pink (Services), Blue (Own Processes), Green (New Process), Red (Killed Process).
-    4.  **Action:** Hover over a process name to see the command line path or double-click to see detailed properties (Threads, TCP/IP connections, Strings).
+**Image Logical Operations**
+- a. AND operation between two images
+- b. OR operation between two images
+- c. Calculate intersection of two images
+- d. Watermarking using XOR operation
+- e. NOT operation (Negative image)
 
-#### **b. Capture RAM**
-* **Tool:** **Magnet RAM Capture** (or RAM Capture as per note)
-* **Steps:**
-    1.  Run the executable from a USB drive (to minimize footprint on the suspect drive).
-    2.  **Configuration:** Select the destination folder to save the raw dump (e.g., the USB drive).
-    3.  **Capture:** Click **Start**. The tool will dump the contents of the physical memory to a `.raw` or `.mem` file.
-    4.  **Wait:** Wait for the progress bar to finish. Do not use the computer during this process to avoid changing memory contents.
+### Code
 
-#### **c. Capture TCP/UDP Packets**
-* **Tool:** **Wireshark** (for full capture) or **TCPView** (for monitoring endpoints)
-* **Monitoring Steps (TCPView):**
-    1.  Run `tcpview.exe` (Sysinternals).
-    2.  Observe the list of all active TCP and UDP endpoints.
-    3.  **State:** Look for connections in `ESTABLISHED`, `LISTENING`, or `TIME_WAIT` states.
-    4.  **Process:** Identify which specific process (Name/PID) is initiating the connection.
+```python
+"""
+Practical 4: Image Logical Operations
+"""
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
 
-#### **d. Monitor the Hard Disk**
-* **Tool:** **DiskMon** (Sysinternals) or **Process Monitor**
-* **Steps (Process Monitor):**
-    1.  Run `procmon.exe`.
-    2.  **Filter:** Use the toolbar buttons to disable Registry and Network activity, leaving only **File System Activity** enabled.
-    3.  **Observe:** Watch real-time Read/Write/Open operations.
-    4.  **Analyze:** Look for processes accessing unusual files or high volumes of Write operations (potential data exfiltration or wiping).
+img1 = cv2.imread('images/sample.png', cv2.IMREAD_GRAYSCALE)
+img2 = cv2.imread('images/test.png', cv2.IMREAD_GRAYSCALE)
+h, w = 300, 300
+img1 = cv2.resize(img1, (w, h))
+img2 = cv2.resize(img2, (w, h))
 
-#### **e. Monitor Virtual Memory**
-* **Tool:** **Process Explorer**
-* **Steps:**
-    1.  Open Process Explorer.
-    2.  Go to **View** $\rightarrow$ **System Information** (or press `Ctrl+I`).
-    3.  Click the **Memory** tab.
-    4.  **Observe:** Look at the **Commit Charge (K)** section.
-        * **Current:** Total virtual memory currently used.
-        * **Limit:** Maximum virtual memory available (RAM + Pagefile).
-        * High "Commit Charge" usage usually indicates heavy use of virtual memory/paging file.
+and_result = cv2.bitwise_and(img1, img2)
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].imshow(img1, cmap='gray')
+axes[0].set_title('Image 1')
+axes[0].axis('off')
+axes[1].imshow(img2, cmap='gray')
+axes[1].set_title('Image 2')
+axes[1].axis('off')
+axes[2].imshow(and_result, cmap='gray')
+axes[2].set_title('AND Result')
+axes[2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/04a_and.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] a. AND Operation")
 
-#### **f. Monitor Cache Memory**
-* **Tool:** **RAMMap** (Sysinternals)
-* **Steps:**
-    1.  Run `RAMMap.exe`.
-    2.  Click on the **Use Counts** tab.
-    3.  **Observe:** Look for the **Standby** column.
-        * **Standby:** Pages of physical ram not actively in use but still containing data (Cache).
-        * **File Summary Tab:** Click this to see exactly which files are currently cached in RAM (Standby lists). This is useful to see what files were recently accessed by the user.
+or_result = cv2.bitwise_or(img1, img2)
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].imshow(img1, cmap='gray')
+axes[0].set_title('Image 1')
+axes[0].axis('off')
+axes[1].imshow(img2, cmap='gray')
+axes[1].set_title('Image 2')
+axes[1].axis('off')
+axes[2].imshow(or_result, cmap='gray')
+axes[2].set_title('OR Result')
+axes[2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/04b_or.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] b. OR Operation")
+
+intersection = cv2.bitwise_and(img1, img2)
+plt.figure(figsize=(8, 6))
+plt.imshow(intersection, cmap='gray')
+plt.title('Intersection (AND)')
+plt.axis('off')
+plt.savefig('outputs/04c_intersection.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] c. Intersection")
+
+watermark = np.zeros((h, w), dtype=np.uint8)
+cv2.putText(watermark, 'WATERMARK', (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1.5, 255, 3)
+watermarked = cv2.bitwise_xor(img1, watermark)
+unwatermarked = cv2.bitwise_xor(watermarked, watermark)
+fig, axes = plt.subplots(2, 2, figsize=(12, 12))
+axes[0, 0].imshow(img1, cmap='gray')
+axes[0, 0].set_title('Original Image')
+axes[0, 0].axis('off')
+axes[0, 1].imshow(watermark, cmap='gray')
+axes[0, 1].set_title('Watermark')
+axes[0, 1].axis('off')
+axes[1, 0].imshow(watermarked, cmap='gray')
+axes[1, 0].set_title('Watermarked (XOR)')
+axes[1, 0].axis('off')
+axes[1, 1].imshow(unwatermarked, cmap='gray')
+axes[1, 1].set_title('Unwatermarked')
+axes[1, 1].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/04d_watermark.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] d. Watermarking")
+
+not_result = cv2.bitwise_not(img1)
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+axes[0].imshow(img1, cmap='gray')
+axes[0].set_title('Original')
+axes[0].axis('off')
+axes[1].imshow(not_result, cmap='gray')
+axes[1].set_title('NOT (Negative)')
+axes[1].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/04e_not.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] e. NOT Operation\nPractical 4 Complete!")
+```
+
+### Output
+
+**Generated Images:**
+
+![04a_and.png](file:///C:\Users\sudee\Desktop\practical\outputs\04a_and.png)
+
+![04b_or.png](file:///C:\Users\sudee\Desktop\practical\outputs\04b_or.png)
+
+![04c_intersection.png](file:///C:\Users\sudee\Desktop\practical\outputs\04c_intersection.png)
+
+![04d_watermark.png](file:///C:\Users\sudee\Desktop\practical\outputs\04d_watermark.png)
+
+![04e_not.png](file:///C:\Users\sudee\Desktop\practical\outputs\04e_not.png)
+
+
+---
+
+## Practical 5: Histogram Calculation and Equalization
+
+### Question
+
+**Histogram Calculation and Equalization**
+- a. Using inbuilt function
+- b. Without using inbuilt function
+
+### Code
+
+```python
+"""
+Practical 5: Histogram Calculation and Equalization
+"""
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img = cv2.imread('images/sample.png', cv2.IMREAD_GRAYSCALE)
+
+hist_cv = cv2.calcHist([img], [0], None, [256], [0, 256])
+equalized_cv = cv2.equalizeHist(img)
+hist_eq_cv = cv2.calcHist([equalized_cv], [0], None, [256], [0, 256])
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+axes[0, 0].imshow(img, cmap='gray')
+axes[0, 0].set_title('Original Image')
+axes[0, 0].axis('off')
+axes[0, 1].plot(hist_cv, color='black')
+axes[0, 1].set_title('Original Histogram')
+axes[0, 1].grid(True, alpha=0.3)
+axes[1, 0].imshow(equalized_cv, cmap='gray')
+axes[1, 0].set_title('Equalized')
+axes[1, 0].axis('off')
+axes[1, 1].plot(hist_eq_cv, color='black')
+axes[1, 1].set_title('Equalized Histogram')
+axes[1, 1].grid(True, alpha=0.3)
+plt.tight_layout()
+plt.savefig('outputs/05a_hist_inbuilt.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] a. Histogram (Inbuilt)")
+
+hist_manual = np.zeros(256, dtype=int)
+for pixel in img.flatten():
+    hist_manual[pixel] += 1
+cdf = hist_manual.cumsum()
+cdf_normalized = cdf * 255 / cdf[-1]
+equalized_manual = np.zeros_like(img)
+for i in range(img.shape[0]):
+    for j in range(img.shape[1]):
+        equalized_manual[i, j] = cdf_normalized[img[i, j]]
+equalized_manual = equalized_manual.astype(np.uint8)
+fig, axes = plt.subplots(2, 2, figsize=(14, 12))
+axes[0, 0].imshow(img, cmap='gray')
+axes[0, 0].set_title('Original')
+axes[0, 0].axis('off')
+axes[0, 1].bar(range(256), hist_manual, color='black', alpha=0.7)
+axes[0, 1].set_title('Original Histogram (Manual)')
+axes[0, 1].grid(True, alpha=0.3)
+axes[1, 0].imshow(equalized_manual, cmap='gray')
+axes[1, 0].set_title('Equalized (Manual)')
+axes[1, 0].axis('off')
+axes[1, 1].plot(cdf_normalized, color='blue')
+axes[1, 1].set_title('CDF')
+axes[1, 1].grid(True, alpha=0.3)
+plt.tight_layout()
+plt.savefig('outputs/05b_hist_manual.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] b. Histogram (Manual)\nPractical 5 Complete!")
+```
+
+### Output
+
+**Generated Images:**
+
+![05a_hist_inbuilt.png](file:///C:\Users\sudee\Desktop\practical\outputs\05a_hist_inbuilt.png)
+
+![05b_hist_manual.png](file:///C:\Users\sudee\Desktop\practical\outputs\05b_hist_manual.png)
+
+
+---
+
+## Practical 6: Geometric Transformations
+
+### Question
+
+**Geometric Transformations**
+- a. Translation
+- b. Scaling
+- c. Rotation
+- d. Shrinking
+- e. Zooming
+
+### Code
+
+```python
+"""
+Practical 6: Geometric Transformations
+"""
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img = cv2.imread('images/sample.png')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+h, w = gray.shape
+
+tx, ty = 50, 30
+M_translation = np.float32([[1, 0, tx], [0, 1, ty]])
+translated = cv2.warpAffine(gray, M_translation, (w, h))
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+axes[0].imshow(gray, cmap='gray')
+axes[0].set_title('Original')
+axes[0].axis('off')
+axes[1].imshow(translated, cmap='gray')
+axes[1].set_title(f'Translated ({tx},{ty})')
+axes[1].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/06a_translation.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] a. Translation")
+
+scaled_up = cv2.resize(gray, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_LINEAR)
+scaled_down = cv2.resize(gray, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_LINEAR)
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].imshow(scaled_down, cmap='gray')
+axes[0].set_title('Scaled Down (0.5x)')
+axes[0].axis('off')
+axes[1].imshow(gray, cmap='gray')
+axes[1].set_title('Original')
+axes[1].axis('off')
+axes[2].imshow(scaled_up, cmap='gray')
+axes[2].set_title('Scaled Up (1.5x)')
+axes[2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/06b_scaling.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] b. Scaling")
+
+angles = [45, 90, 180]
+rotated_images = []
+for angle in angles:
+    M_rotation = cv2.getRotationMatrix2D((w/2, h/2), angle, 1.0)
+    rotated = cv2.warpAffine(gray, M_rotation, (w, h))
+    rotated_images.append(rotated)
+fig, axes = plt.subplots(2, 2, figsize=(12, 12))
+axes[0, 0].imshow(gray, cmap='gray')
+axes[0, 0].set_title('Original')
+axes[0, 0].axis('off')
+axes[0, 1].imshow(rotated_images[0], cmap='gray')
+axes[0, 1].set_title(f'Rotated {angles[0]}deg')
+axes[0, 1].axis('off')
+axes[1, 0].imshow(rotated_images[1], cmap='gray')
+axes[1, 0].set_title(f'Rotated {angles[1]}deg')
+axes[1, 0].axis('off')
+axes[1, 1].imshow(rotated_images[2], cmap='gray')
+axes[1, 1].set_title(f'Rotated {angles[2]}deg')
+axes[1, 1].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/06c_rotation.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] c. Rotation")
+
+shrink_factor = 2
+shrinked = gray[::shrink_factor, ::shrink_factor]
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+axes[0].imshow(gray, cmap='gray')
+axes[0].set_title(f'Original ({gray.shape})')
+axes[0].axis('off')
+axes[1].imshow(shrinked, cmap='gray')
+axes[1].set_title(f'Shrinked ({shrinked.shape})')
+axes[1].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/06d_shrinking.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] d. Shrinking")
+
+zoom_factor = 2
+center_h, center_w = h // 2, w // 2
+crop_h, crop_w = h // (2 * zoom_factor), w // (2 * zoom_factor)
+zoomed_crop = gray[center_h-crop_h:center_h+crop_h, center_w-crop_w:center_w+crop_w]
+zoomed = cv2.resize(zoomed_crop, (w, h), interpolation=cv2.INTER_LINEAR)
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+axes[0].imshow(gray, cmap='gray')
+axes[0].set_title('Original')
+axes[0].axis('off')
+axes[1].imshow(zoomed, cmap='gray')
+axes[1].set_title(f'Zoomed {zoom_factor}x')
+axes[1].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/06e_zooming.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] e. Zooming\nPractical 6 Complete!")
+```
+
+### Output
+
+**Generated Images:**
+
+![06a_translation.png](file:///C:\Users\sudee\Desktop\practical\outputs\06a_translation.png)
+
+![06b_scaling.png](file:///C:\Users\sudee\Desktop\practical\outputs\06b_scaling.png)
+
+![06c_rotation.png](file:///C:\Users\sudee\Desktop\practical\outputs\06c_rotation.png)
+
+![06d_shrinking.png](file:///C:\Users\sudee\Desktop\practical\outputs\06d_shrinking.png)
+
+![06e_zooming.png](file:///C:\Users\sudee\Desktop\practical\outputs\06e_zooming.png)
+
+
+---
+
+## Practical 7: Noise Models and Image Restoration
+
+### Question
+
+**Noise Models and Image Restoration**
+- a. Image restoration
+- b. Remove Salt and Pepper Noise
+- c. Minimize Gaussian noise
+- d. Median filter and Wiener filter
+
+### Code
+
+```python
+"""
+Practical 7: Noise Models and Image Restoration
+"""
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import wiener
+
+img = cv2.imread('images/sample.png', cv2.IMREAD_GRAYSCALE)
+
+def add_gaussian_noise(image, mean=0, sigma=25):
+    noise = np.random.normal(mean, sigma, image.shape)
+    noisy = np.clip(image + noise, 0, 255).astype(np.uint8)
+    return noisy
+
+def add_salt_pepper_noise(image, salt_prob=0.02, pepper_prob=0.02):
+    noisy = image.copy()
+    salt_mask = np.random.random(image.shape) < salt_prob
+    noisy[salt_mask] = 255
+    pepper_mask = np.random.random(image.shape) < pepper_prob
+    noisy[pepper_mask] = 0
+    return noisy
+
+gaussian_noisy = add_gaussian_noise(img)
+sp_noisy = add_salt_pepper_noise(img)
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].imshow(img, cmap='gray')
+axes[0].set_title('Original')
+axes[0].axis('off')
+axes[1].imshow(gaussian_noisy, cmap='gray')
+axes[1].set_title('Gaussian Noise')
+axes[1].axis('off')
+axes[2].imshow(sp_noisy, cmap='gray')
+axes[2].set_title('Salt & Pepper Noise')
+axes[2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/07a_noisy_images.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] a. Image Restoration")
+
+median_filtered = cv2.medianBlur(sp_noisy, 5)
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].imshow(img, cmap='gray')
+axes[0].set_title('Original')
+axes[0].axis('off')
+axes[1].imshow(sp_noisy, cmap='gray')
+axes[1].set_title('Salt & Pepper Noise')
+axes[1].axis('off')
+axes[2].imshow(median_filtered, cmap='gray')
+axes[2].set_title('Median Filter (5x5)')
+axes[2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/07b_remove_salt_pepper.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] b. Remove Salt & Pepper")
+
+gaussian_blur = cv2.GaussianBlur(gaussian_noisy, (5, 5), 0)
+bilateral = cv2.bilateralFilter(gaussian_noisy, 9, 75, 75)
+mean_filter = cv2.blur(gaussian_noisy, (5, 5))
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+axes[0, 0].imshow(img, cmap='gray')
+axes[0, 0].set_title('Original')
+axes[0, 0].axis('off')
+axes[0, 1].imshow(gaussian_noisy, cmap='gray')
+axes[0, 1].set_title('Gaussian Noise')
+axes[0, 1].axis('off')
+axes[0, 2].imshow(gaussian_blur, cmap='gray')
+axes[0, 2].set_title('Gaussian Blur Filter')
+axes[0, 2].axis('off')
+axes[1, 0].imshow(bilateral, cmap='gray')
+axes[1, 0].set_title('Bilateral Filter')
+axes[1, 0].axis('off')
+axes[1, 1].imshow(mean_filter, cmap='gray')
+axes[1, 1].set_title('Mean Filter')
+axes[1, 1].axis('off')
+axes[1, 2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/07c_remove_gaussian.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] c. Minimize Gaussian Noise")
+
+median_result = cv2.medianBlur(gaussian_noisy, 5)
+wiener_result = wiener(gaussian_noisy, (5, 5))
+wiener_result = np.clip(wiener_result, 0, 255).astype(np.uint8)
+fig, axes = plt.subplots(2, 2, figsize=(12, 12))
+axes[0, 0].imshow(img, cmap='gray')
+axes[0, 0].set_title('Original')
+axes[0, 0].axis('off')
+axes[0, 1].imshow(gaussian_noisy, cmap='gray')
+axes[0, 1].set_title('Noisy Image')
+axes[0, 1].axis('off')
+axes[1, 0].imshow(median_result, cmap='gray')
+axes[1, 0].set_title('Median Filter (5x5)')
+axes[1, 0].axis('off')
+axes[1, 1].imshow(wiener_result, cmap='gray')
+axes[1, 1].set_title('Wiener Filter (5x5)')
+axes[1, 1].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/07d_median_wiener.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] d. Median & Wiener Filter\nPractical 7 Complete!")
+```
+
+### Output
+
+**Generated Images:**
+
+![07a_noisy_images.png](file:///C:\Users\sudee\Desktop\practical\outputs\07a_noisy_images.png)
+
+![07b_remove_salt_pepper.png](file:///C:\Users\sudee\Desktop\practical\outputs\07b_remove_salt_pepper.png)
+
+![07c_remove_gaussian.png](file:///C:\Users\sudee\Desktop\practical\outputs\07c_remove_gaussian.png)
+
+![07d_median_wiener.png](file:///C:\Users\sudee\Desktop\practical\outputs\07d_median_wiener.png)
+
+
+---
+
+## Practical 8: Spatial Filtering
+
+### Question
+
+**Spatial Filtering**
+- a. Understand 1-D and 2-D convolution process
+- b. Use 3x3 Mask for low pass and high pass filters
+
+### Code
+
+```python
+"""
+Practical 8: Spatial Filtering
+"""
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+img = cv2.imread('images/sample.png', cv2.IMREAD_GRAYSCALE)
+
+signal_1d = img[img.shape[0]//2, :]
+kernel_1d = np.array([1, 2, 1]) / 4.0
+conv_1d = np.convolve(signal_1d, kernel_1d, mode='same')
+kernel_2d = np.ones((5, 5)) / 25.0
+conv_2d = signal.convolve2d(img, kernel_2d, mode='same', boundary='symm')
+conv_2d = np.clip(conv_2d, 0, 255).astype(np.uint8)
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+plt.plot(signal_1d, label='Original Signal', alpha=0.7)
+plt.plot(conv_1d, label='Convolved Signal', alpha=0.7)
+plt.title('1-D Convolution')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.subplot(1, 2, 2)
+plt.imshow(conv_2d, cmap='gray')
+plt.title('2-D Convolution (5x5)')
+plt.axis('off')
+plt.tight_layout()
+plt.savefig('outputs/08a_convolution.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] a. 1-D and 2-D Convolution")
+
+lpf_average = np.ones((3, 3)) / 9.0
+lpf_gaussian = np.array([[1, 2, 1], [2, 4, 2], [1, 2, 1]]) / 16.0
+hpf_laplacian = np.array([[0, -1, 0], [-1, 4, -1], [0, -1, 0]])
+hpf_laplacian2 = np.array([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]])
+hpf_sharpen = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+
+lpf_avg_result = cv2.filter2D(img, -1, lpf_average)
+lpf_gauss_result = cv2.filter2D(img, -1, lpf_gaussian)
+hpf_lap_result = cv2.filter2D(img, -1, hpf_laplacian)
+hpf_lap2_result = cv2.filter2D(img, -1, hpf_laplacian2)
+hpf_sharp_result = cv2.filter2D(img, -1, hpf_sharpen)
+
+hpf_lap_result = np.clip(hpf_lap_result, 0, 255).astype(np.uint8)
+hpf_lap2_result = np.clip(hpf_lap2_result, 0, 255).astype(np.uint8)
+hpf_sharp_result = np.clip(hpf_sharp_result, 0, 255).astype(np.uint8)
+
+fig, axes = plt.subplots(3, 3, figsize=(15, 15))
+axes[0, 0].imshow(img, cmap='gray')
+axes[0, 0].set_title('Original')
+axes[0, 0].axis('off')
+axes[0, 1].imshow(lpf_avg_result, cmap='gray')
+axes[0, 1].set_title('LPF: Average (3x3)')
+axes[0, 1].axis('off')
+axes[0, 2].imshow(lpf_gauss_result, cmap='gray')
+axes[0, 2].set_title('LPF: Gaussian (3x3)')
+axes[0, 2].axis('off')
+axes[1, 0].imshow(lpf_average, cmap='hot')
+axes[1, 0].set_title('Average Kernel')
+axes[1, 1].imshow(lpf_gaussian, cmap='hot')
+axes[1, 1].set_title('Gaussian Kernel')
+axes[1, 2].imshow(hpf_laplacian, cmap='seismic')
+axes[1, 2].set_title('Laplacian Kernel')
+axes[2, 0].imshow(hpf_lap_result, cmap='gray')
+axes[2, 0].set_title('HPF: Laplacian 1')
+axes[2, 0].axis('off')
+axes[2, 1].imshow(hpf_lap2_result, cmap='gray')
+axes[2, 1].set_title('HPF: Laplacian 2')
+axes[2, 1].axis('off')
+axes[2, 2].imshow(hpf_sharp_result, cmap='gray')
+axes[2, 2].set_title('HPF: Sharpen')
+axes[2, 2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/08b_filters.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] b. 3x3 LPF and HPF Filters\nPractical 8 Complete!")
+```
+
+### Output
+
+**Generated Images:**
+
+![08a_convolution.png](file:///C:\Users\sudee\Desktop\practical\outputs\08a_convolution.png)
+
+![08b_filters.png](file:///C:\Users\sudee\Desktop\practical\outputs\08b_filters.png)
+
+
+---
+
+## Practical 9: Frequency Domain Filtering
+
+### Question
+
+**Frequency Domain Filtering**
+- a. Apply FFT on given image
+- b. Perform low pass and high pass filtering in frequency domain
+- c. Apply IFFT to reconstruct image
+
+### Code
+
+```python
+"""
+Practical 9: Frequency Domain Filtering
+"""
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img = cv2.imread('images/sample.png', cv2.IMREAD_GRAYSCALE)
+
+fft = np.fft.fft2(img)
+fft_shift = np.fft.fftshift(fft)
+magnitude_spectrum = 20 * np.log(np.abs(fft_shift) + 1)
+phase_spectrum = np.angle(fft_shift)
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].imshow(img, cmap='gray')
+axes[0].set_title('Original Image')
+axes[0].axis('off')
+axes[1].imshow(magnitude_spectrum, cmap='gray')
+axes[1].set_title('Magnitude Spectrum')
+axes[1].axis('off')
+axes[2].imshow(phase_spectrum, cmap='gray')
+axes[2].set_title('Phase Spectrum')
+axes[2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/09a_fft.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] a. Apply FFT")
+
+rows, cols = img.shape
+crow, ccol = rows // 2, cols // 2
+
+def create_circular_mask(h, w, center, radius):
+    Y, X = np.ogrid[:h, :w]
+    dist_from_center = np.sqrt((X - center[0])**2 + (Y - center[1])**2)
+    mask = dist_from_center <= radius
+    return mask
+
+lpf_radius = 30
+lpf_mask = create_circular_mask(rows, cols, (ccol, crow), lpf_radius)
+hpf_mask = ~lpf_mask
+
+fft_lpf = fft_shift * lpf_mask
+fft_hpf = fft_shift * hpf_mask
+
+mag_lpf = 20 * np.log(np.abs(fft_lpf) + 1)
+mag_hpf = 20 * np.log(np.abs(fft_hpf) + 1)
+
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+axes[0, 0].imshow(magnitude_spectrum, cmap='gray')
+axes[0, 0].set_title('Original Spectrum')
+axes[0, 0].axis('off')
+axes[0, 1].imshow(lpf_mask, cmap='gray')
+axes[0, 1].set_title(f'Low Pass Mask (r={lpf_radius})')
+axes[0, 1].axis('off')
+axes[0, 2].imshow(mag_lpf, cmap='gray')
+axes[0, 2].set_title('LPF Spectrum')
+axes[0, 2].axis('off')
+axes[1, 0].imshow(magnitude_spectrum, cmap='gray')
+axes[1, 0].set_title('Original Spectrum')
+axes[1, 0].axis('off')
+axes[1, 1].imshow(hpf_mask, cmap='gray')
+axes[1, 1].set_title('High Pass Mask')
+axes[1, 1].axis('off')
+axes[1, 2].imshow(mag_hpf, cmap='gray')
+axes[1, 2].set_title('HPF Spectrum')
+axes[1, 2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/09b_freq_filters.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] b. Frequency Domain Filtering")
+
+ifft_lpf = np.fft.ifftshift(fft_lpf)
+img_lpf = np.fft.ifft2(ifft_lpf)
+img_lpf = np.abs(img_lpf)
+
+ifft_hpf = np.fft.ifftshift(fft_hpf)
+img_hpf = np.fft.ifft2(ifft_hpf)
+img_hpf = np.abs(img_hpf)
+
+img_lpf = np.clip(img_lpf, 0, 255).astype(np.uint8)
+img_hpf = np.clip(img_hpf, 0, 255).astype(np.uint8)
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 12))
+axes[0, 0].imshow(img, cmap='gray')
+axes[0, 0].set_title('Original Image')
+axes[0, 0].axis('off')
+axes[0, 1].imshow(img_lpf, cmap='gray')
+axes[0, 1].set_title('Low Pass Filtered (Blurred)')
+axes[0, 1].axis('off')
+axes[1, 0].imshow(img_hpf, cmap='gray')
+axes[1, 0].set_title('High Pass Filtered (Edges)')
+axes[1, 0].axis('off')
+axes[1, 1].imshow(np.hstack([img_lpf, img_hpf]), cmap='gray')
+axes[1, 1].set_title('Comparison: LPF (Left) vs HPF (Right)')
+axes[1, 1].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/09c_ifft_results.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] c. Apply IFFT\nPractical 9 Complete!")
+```
+
+### Output
+
+**Generated Images:**
+
+![09a_fft.png](file:///C:\Users\sudee\Desktop\practical\outputs\09a_fft.png)
+
+![09b_freq_filters.png](file:///C:\Users\sudee\Desktop\practical\outputs\09b_freq_filters.png)
+
+![09c_ifft_results.png](file:///C:\Users\sudee\Desktop\practical\outputs\09c_ifft_results.png)
+
+
+---
+
+## Practical 10: Edge Detection
+
+### Question
+
+**Edge Detection**
+- Using different edge detection masks:
+- - Sobel
+- - Prewitt
+- - Roberts
+- - Canny
+- - Laplacian
+
+### Code
+
+```python
+"""
+Practical 10: Edge Detection
+"""
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img = cv2.imread('images/sample.png', cv2.IMREAD_GRAYSCALE)
+
+sobel_x = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
+sobel_y = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
+sobel = np.sqrt(sobel_x**2 + sobel_y**2)
+sobel = np.clip(sobel, 0, 255).astype(np.uint8)
+
+prewitt_x = np.array([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]])
+prewitt_y = np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]])
+prewitt_edge_x = cv2.filter2D(img, -1, prewitt_x)
+prewitt_edge_y = cv2.filter2D(img, -1, prewitt_y)
+prewitt = np.sqrt(prewitt_edge_x**2 + prewitt_edge_y**2)
+prewitt = np.clip(prewitt, 0, 255).astype(np.uint8)
+
+roberts_x = np.array([[1, 0], [0, -1]])
+roberts_y = np.array([[0, 1], [-1, 0]])
+roberts_edge_x = cv2.filter2D(img, -1, roberts_x)
+roberts_edge_y = cv2.filter2D(img, -1, roberts_y)
+roberts = np.sqrt(roberts_edge_x**2 + roberts_edge_y**2)
+roberts = np.clip(roberts, 0, 255).astype(np.uint8)
+
+canny = cv2.Canny(img, 100, 200)
+laplacian = cv2.Laplacian(img, cv2.CV_64F)
+laplacian = np.clip(np.abs(laplacian), 0, 255).astype(np.uint8)
+
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+axes[0, 0].imshow(img, cmap='gray')
+axes[0, 0].set_title('Original Image')
+axes[0, 0].axis('off')
+axes[0, 1].imshow(sobel, cmap='gray')
+axes[0, 1].set_title('Sobel Edge Detection')
+axes[0, 1].axis('off')
+axes[0, 2].imshow(prewitt, cmap='gray')
+axes[0, 2].set_title('Prewitt Edge Detection')
+axes[0, 2].axis('off')
+axes[1, 0].imshow(roberts, cmap='gray')
+axes[1, 0].set_title('Roberts Edge Detection')
+axes[1, 0].axis('off')
+axes[1, 1].imshow(canny, cmap='gray')
+axes[1, 1].set_title('Canny Edge Detection')
+axes[1, 1].axis('off')
+axes[1, 2].imshow(laplacian, cmap='gray')
+axes[1, 2].set_title('Laplacian Edge Detection')
+axes[1, 2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/10_edge_detection.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] Edge Detection using Multiple Methods")
+
+sobel_kernel_x = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
+sobel_kernel_y = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])
+
+fig, axes = plt.subplots(3, 3, figsize=(15, 15))
+axes[0, 0].imshow(sobel_kernel_x, cmap='seismic')
+axes[0, 0].set_title('Sobel X Kernel')
+axes[0, 1].imshow(sobel_kernel_y, cmap='seismic')
+axes[0, 1].set_title('Sobel Y Kernel')
+axes[0, 2].imshow(sobel, cmap='gray')
+axes[0, 2].set_title('Sobel Result')
+axes[0, 2].axis('off')
+axes[1, 0].imshow(prewitt_x, cmap='seismic')
+axes[1, 0].set_title('Prewitt X Kernel')
+axes[1, 1].imshow(prewitt_y, cmap='seismic')
+axes[1, 1].set_title('Prewitt Y Kernel')
+axes[1, 2].imshow(prewitt, cmap='gray')
+axes[1, 2].set_title('Prewitt Result')
+axes[1, 2].axis('off')
+axes[2, 0].imshow(roberts_x, cmap='seismic')
+axes[2, 0].set_title('Roberts X Kernel')
+axes[2, 1].imshow(roberts_y, cmap='seismic')
+axes[2, 1].set_title('Roberts Y Kernel')
+axes[2, 2].imshow(roberts, cmap='gray')
+axes[2, 2].set_title('Roberts Result')
+axes[2, 2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/10_edge_kernels.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] Edge Detection Kernels Visualization\nPractical 10 Complete!")
+```
+
+### Output
+
+**Generated Images:**
+
+![10_edge_detection.png](file:///C:\Users\sudee\Desktop\practical\outputs\10_edge_detection.png)
+
+![10_edge_kernels.png](file:///C:\Users\sudee\Desktop\practical\outputs\10_edge_kernels.png)
+
+
+---
+
+## Practical 11: Morphological Operations
+
+### Question
+
+**Morphological Operations**
+- - Erosion
+- - Dilation
+- - Opening
+- - Closing
+- - Gradient
+- - Top Hat
+- - Black Hat
+
+### Code
+
+```python
+"""
+Practical 11: Morphological Operations
+"""
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img = cv2.imread('images/sample.png', cv2.IMREAD_GRAYSCALE)
+_, binary = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+
+kernel_3x3 = np.ones((3, 3), np.uint8)
+kernel_5x5 = np.ones((5, 5), np.uint8)
+kernel_7x7 = np.ones((7, 7), np.uint8)
+
+erosion_3 = cv2.erode(binary, kernel_3x3, iterations=1)
+erosion_5 = cv2.erode(binary, kernel_5x5, iterations=1)
+dilation_3 = cv2.dilate(binary, kernel_3x3, iterations=1)
+dilation_5 = cv2.dilate(binary, kernel_5x5, iterations=1)
+opening = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel_5x5)
+closing = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel_5x5)
+gradient = cv2.morphologyEx(binary, cv2.MORPH_GRADIENT, kernel_3x3)
+tophat = cv2.morphologyEx(binary, cv2.MORPH_TOPHAT, kernel_7x7)
+blackhat = cv2.morphologyEx(binary, cv2.MORPH_BLACKHAT, kernel_7x7)
+
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+axes[0, 0].imshow(img, cmap='gray')
+axes[0, 0].set_title('Original Image')
+axes[0, 0].axis('off')
+axes[0, 1].imshow(binary, cmap='gray')
+axes[0, 1].set_title('Binary Image')
+axes[0, 1].axis('off')
+axes[0, 2].imshow(erosion_5, cmap='gray')
+axes[0, 2].set_title('Erosion (5x5)')
+axes[0, 2].axis('off')
+axes[1, 0].imshow(dilation_5, cmap='gray')
+axes[1, 0].set_title('Dilation (5x5)')
+axes[1, 0].axis('off')
+axes[1, 1].imshow(opening, cmap='gray')
+axes[1, 1].set_title('Opening (5x5)')
+axes[1, 1].axis('off')
+axes[1, 2].imshow(closing, cmap='gray')
+axes[1, 2].set_title('Closing (5x5)')
+axes[1, 2].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/11a_morphology_basic.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] Basic Morphological Operations")
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 12))
+axes[0, 0].imshow(binary, cmap='gray')
+axes[0, 0].set_title('Binary Image')
+axes[0, 0].axis('off')
+axes[0, 1].imshow(gradient, cmap='gray')
+axes[0, 1].set_title('Morphological Gradient')
+axes[0, 1].axis('off')
+axes[1, 0].imshow(tophat, cmap='gray')
+axes[1, 0].set_title('Top Hat Transform')
+axes[1, 0].axis('off')
+axes[1, 1].imshow(blackhat, cmap='gray')
+axes[1, 1].set_title('Black Hat Transform')
+axes[1, 1].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/11b_morphology_advanced.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] Advanced Morphological Operations")
+
+fig, axes = plt.subplots(2, 4, figsize=(16, 8))
+axes[0, 0].imshow(binary, cmap='gray')
+axes[0, 0].set_title('Original Binary')
+axes[0, 0].axis('off')
+axes[0, 1].imshow(erosion_3, cmap='gray')
+axes[0, 1].set_title('Erosion (3x3)')
+axes[0, 1].axis('off')
+axes[0, 2].imshow(erosion_5, cmap='gray')
+axes[0, 2].set_title('Erosion (5x5)')
+axes[0, 2].axis('off')
+erosion_7 = cv2.erode(binary, kernel_7x7, iterations=1)
+axes[0, 3].imshow(erosion_7, cmap='gray')
+axes[0, 3].set_title('Erosion (7x7)')
+axes[0, 3].axis('off')
+axes[1, 0].imshow(binary, cmap='gray')
+axes[1, 0].set_title('Original Binary')
+axes[1, 0].axis('off')
+axes[1, 1].imshow(dilation_3, cmap='gray')
+axes[1, 1].set_title('Dilation (3x3)')
+axes[1, 1].axis('off')
+axes[1, 2].imshow(dilation_5, cmap='gray')
+axes[1, 2].set_title('Dilation (5x5)')
+axes[1, 2].axis('off')
+dilation_7 = cv2.dilate(binary, kernel_7x7, iterations=1)
+axes[1, 3].imshow(dilation_7, cmap='gray')
+axes[1, 3].set_title('Dilation (7x7)')
+axes[1, 3].axis('off')
+plt.tight_layout()
+plt.savefig('outputs/11c_morphology_kernels.png', bbox_inches='tight', dpi=150)
+plt.close()
+print("[OK] Kernel Size Comparison\nPractical 11 Complete!")
+```
+
+### Output
+
+**Generated Images:**
+
+![11a_morphology_basic.png](file:///C:\Users\sudee\Desktop\practical\outputs\11a_morphology_basic.png)
+
+![11b_morphology_advanced.png](file:///C:\Users\sudee\Desktop\practical\outputs\11b_morphology_advanced.png)
+
+![11c_morphology_kernels.png](file:///C:\Users\sudee\Desktop\practical\outputs\11c_morphology_kernels.png)
+
+
+---
+
+## Summary
+
+This document contains complete solutions for all 11 Image Processing practicals.
+
+*Generated: Image Processing Lab*
